@@ -10,8 +10,9 @@ import java.util.Scanner;
 
 class HashUtil {
     public static String generateKey(String user) throws NoSuchAlgorithmException {
+        try {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
-
+            
         byte[] hash = digest.digest(user.getBytes());
 
         StringBuilder hexID = new StringBuilder();
@@ -21,6 +22,11 @@ class HashUtil {
         }
 
         return hexID.toString();
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println(e.getStackTrace());
+        }
+
+        return "Null";
     }
 }
 
@@ -90,6 +96,15 @@ class User {
         return this.hashid;
     }
 
+    // create and set hash id
+    public void createHashID() {
+        try {
+        setHashID(HashUtil.generateKey(getUsername()));
+        
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println(e.getStackTrace());
+        }
+    }
 }
 
 class Patient extends User {
@@ -131,11 +146,6 @@ class Patient extends User {
         this.dateOfBirth = dateOfBirth;
     }
 
-    // create hash id
-    public void createHashID() {
-        setHashID(Integer.toHexString(getUsername().hashCode()));
-        System.out.println(getHashID());
-    }
 }
 
 class Doctor extends User {
@@ -295,6 +305,7 @@ public class app {
             doctor.setName(name);
             doctor.setSurname(surname);
             doctor.setGender(gender);
+            doctor.createHashID();
 
             System.out.print("Enter department: ");
             doctor.setDepartment(scanner.nextLine());
