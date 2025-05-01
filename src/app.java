@@ -1,12 +1,12 @@
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.*;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Scanner;
-
 
 class HashUtil {
     public static String generateKey(String user) throws NoSuchAlgorithmException {
@@ -325,10 +325,9 @@ public class app {
         }
     }
 }
-import java.sql.*;
 
-public class HospitalDatabaseSetup {
-    public static void main(String[] args) {
+class HospitalDatabaseSetup {
+    public static void runSetup() {
         String baseUrl = "jdbc:mysql://localhost:3306/";
         String dbName = "hospital_db";
         String url = baseUrl + dbName + "?useSSL=false&serverTimezone=UTC";
