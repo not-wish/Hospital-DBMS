@@ -1,9 +1,28 @@
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+
+
+class HashUtil {
+    public static String generateKey(String user) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+
+        byte[] hash = digest.digest(user.getBytes());
+
+        StringBuilder hexID = new StringBuilder();
+
+        for (byte b : hash) {
+            hexID.append(String.format("%02x", b));  // %02x = 2-digit hex
+        }
+
+        return hexID.toString();
+    }
+}
 
 class User {
     private String username;
@@ -295,3 +314,4 @@ public class app {
         }
     }
 }
+
