@@ -150,7 +150,7 @@ class Doctor extends User {
     }
 }
 
-public class Change {
+public class app {
     static HashMap<String, User> userDatabase = new HashMap<>();
 
     public static void main(String[] args) {
