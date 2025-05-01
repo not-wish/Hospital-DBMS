@@ -325,4 +325,144 @@ public class app {
         }
     }
 }
+import java.sql.*;
 
+public class HospitalDatabaseSetup {
+    public static void main(String[] args) {
+        String baseUrl = "jdbc:mysql://localhost:3306/";
+        String dbName = "hospital_db";
+        String url = baseUrl + dbName + "?useSSL=false&serverTimezone=UTC";
+        String user = "root";
+        String password = "9347384518";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+             Statement stmt = conn.createStatement()) {
+
+            // Create database
+            stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + dbName);
+            System.out.println("Database '" + dbName + "' created or already exists.");
+
+            // Use the database
+            stmt.executeUpdate("USE " + dbName);
+
+            // Create tables with IF NOT EXISTS
+            stmt.executeUpdate("""
+                CREATE TABLE IF NOT EXISTS admin (
+                    admin_id INT PRIMARY KEY AUTO_INCREMENT,
+                    name VARCHAR(100) NOT NULL,
+                    surname VARCHAR(100) NOT NULL,
+                    username VARCHAR(100) UNIQUE NOT NULL,
+                    password VARCHAR(255) NOT NULL,
+                    gender ENUM('M', 'F', 'Other') NOT NULL,
+                    additional_info TEXT
+                )
+            """);
+          //  System.out.println("Table 'admin' created or already exists.");
+
+            stmt.executeUpdate("""
+                CREATE TABLE IF NOT EXISTS doctor (
+                    doctor_id INT PRIMARY KEY AUTO_INCREMENT,
+                    name VARCHAR(100) NOT NULL,
+                    surname VARCHAR(100) NOT NULL,
+                    username VARCHAR(100) UNIQUE NOT NULL,
+                    password VARCHAR(255) NOT NULL,
+                    gender ENUM('M', 'F', 'Other') NOT NULL,
+                    department VARCHAR(100) NOT NULL,
+                    id_number VARCHAR(50) NOT NULL,
+                    date_of_joining DATE NOT NULL,
+                    admin_id INT,
+                    additional_info TEXT,
+                    FOREIGN KEY (admin_id) REFERENCES admin(admin_id) ON DELETE SET NULL
+                )
+            """);
+          //  System.out.println("Table 'doctor' created or already exists.");
+
+            stmt.executeUpdate("""
+                CREATE TABLE IF NOT EXISTS receptionist (
+                    receptionist_id INT PRIMARY KEY AUTO_INCREMENT,
+                    name VARCHAR(100) NOT NULL,
+                    surname VARCHAR(100) NOT NULL,
+                    username VARCHAR(100) UNIQUE NOT NULL,
+                    password VARCHAR(255) NOT NULL,
+                    gender ENUM('M', 'F', 'Other') NOT NULL,
+                    phone VARCHAR(15),
+                    admin_id INT,
+                    additional_info TEXT,
+                    FOREIGN KEY (admin_id) REFERENCES admin(admin_id) ON DELETE SET NULL
+                )
+            """);
+          //  System.out.println("Table 'receptionist' created or already exists.");
+
+            stmt.executeUpdate("""
+                CREATE TABLE IF NOT EXISTS lab_technician (
+                    technician_id INT PRIMARY KEY AUTO_INCREMENT,
+                    name VARCHAR(100) NOT NULL,
+                    surname VARCHAR(100) NOT NULL,
+                    username VARCHAR(100) UNIQUE NOT NULL,
+                    password VARCHAR(255) NOT NULL,
+                    gender ENUM('M', 'F', 'Other') NOT NULL,
+                    phone VARCHAR(15),
+                    admin_id INT,
+                    additional_info TEXT,
+                    FOREIGN KEY (admin_id) REFERENCES admin(admin_id) ON DELETE SET NULL
+                )
+            """);
+          //  System.out.println("Table 'lab_technician' created or already exists.");
+
+            stmt.executeUpdate("""
+                CREATE TABLE IF NOT EXISTS patient (
+                    patient_id INT PRIMARY KEY AUTO_INCREMENT,
+                    name VARCHAR(100) NOT NULL,
+                    surname VARCHAR(100) NOT NULL,
+                    username VARCHAR(100) UNIQUE NOT NULL,
+                    password VARCHAR(255) NOT NULL,
+                    gender ENUM('M', 'F', 'Other') NOT NULL,
+                    age INT NOT NULL,
+                    blood_group VARCHAR(10),
+                    past_surgeries TEXT,
+                    referred_by VARCHAR(100),
+                    date_of_birth DATE NOT NULL,
+                    hash_id VARCHAR(64) NOT NULL,
+                    doctor_id INT,
+                    receptionist_id INT,
+                    technician_id INT,
+                    additional_info TEXT,
+                    FOREIGN KEY (doctor_id) REFERENCES doctor(doctor_id) ON DELETE SET NULL,
+                    FOREIGN KEY (receptionist_id) REFERENCES receptionist(receptionist_id) ON DELETE SET NULL,
+                    FOREIGN KEY (technician_id) REFERENCES lab_technician(technician_id) ON DELETE SET NULL
+                )
+            """);
+          //  System.out.println("Table 'patient' created or already exists.");
+
+            stmt.executeUpdate("""
+                CREATE TABLE IF NOT EXISTS appointment (
+                    appointment_id INT PRIMARY KEY AUTO_INCREMENT,
+                    patient_id INT NOT NULL,
+                    doctor_id INT NOT NULL,
+                    appointment_date DATETIME NOT NULL,
+                    status ENUM('Scheduled', 'Completed', 'Cancelled') NOT NULL,
+                    additional_info TEXT,
+                    FOREIGN KEY (patient_id) REFERENCES patient(patient_id) ON DELETE CASCADE,
+                    FOREIGN KEY (doctor_id) REFERENCES doctor(doctor_id) ON DELETE CASCADE
+                )
+            """);
+           // System.out.println("Table 'appointment' created or already exists.");
+
+            stmt.executeUpdate("""
+                CREATE TABLE IF NOT EXISTS bill (
+                    bill_id INT PRIMARY KEY AUTO_INCREMENT,
+                    patient_id INT NOT NULL,
+                    amount DECIMAL(10, 2) NOT NULL,
+                    bill_date DATE NOT NULL,
+                    status ENUM('Pending', 'Paid') NOT NULL,
+                    additional_info TEXT,
+                    FOREIGN KEY (patient_id) REFERENCES patient(patient_id) ON DELETE CASCADE
+                )
+            """);
+           // System.out.println("Table 'bill' created or already exists.");
+
+        } catch (SQLException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+}
