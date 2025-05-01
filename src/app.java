@@ -23,7 +23,7 @@ class HashUtil {
 
         return hexID.toString();
         } catch (NoSuchAlgorithmException e) {
-            System.out.println(e.getStackTrace());
+            System.out.println(e);
         }
 
         return "Null";
@@ -102,7 +102,8 @@ class User {
         setHashID(HashUtil.generateKey(getUsername()));
         
         } catch (NoSuchAlgorithmException e) {
-            System.out.println(e.getStackTrace());
+            System.out.println("Encountered No Such Algorithm Exception");
+            System.out.println(e);
         }
     }
 }
