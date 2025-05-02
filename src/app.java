@@ -329,9 +329,9 @@ public class app {
 // database code
 
 
-public class HospitalDatabaseSetup {
+ class HospitalDatabaseSetup {
     @SuppressWarnings("CallToPrintStackTrace")
-    public static void main(String[] args) {
+    public static void runSetup(String[] args) {
         // Database connection parameters
         String baseUrl = "jdbc:mysql://localhost:3306/";
         String dbName = "hospital_db";
