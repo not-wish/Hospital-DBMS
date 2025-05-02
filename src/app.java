@@ -1,6 +1,5 @@
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.*;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
@@ -26,7 +25,7 @@ class HashUtil {
             System.out.println(e);
         }
 
-        return "Null";
+        return "NULL";
     }
 }
 
