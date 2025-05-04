@@ -180,8 +180,9 @@ class HospitalDatabaseSetup {
                         "gender ENUM('M', 'F', 'Other') NOT NULL, " +
                         "age INT NOT NULL, " +
                         "blood_group VARCHAR(10), " +
-                        "past_surgeries TEXT, " +
-                        "referred_by VARCHAR(100), " +
+                        "medical_history TEXT,"+
+                      //  "past_surgeries TEXT, " +
+                      //  "referred_by VARCHAR(100), " +
                         "date_of_birth DATE NOT NULL, " +
                         "address VARCHAR(255), " +
                         "email VARCHAR(255) UNIQUE, " +
