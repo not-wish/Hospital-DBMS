@@ -5,6 +5,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import io.github.cdimascio.dotenv.Dotenv;
+
 public class HospitalDatabaseSetup {
     @SuppressWarnings("CallToPrintStackTrace")
     public static void runSetup(String[] args) {
@@ -12,8 +14,9 @@ public class HospitalDatabaseSetup {
         String baseUrl = "jdbc:mysql://localhost:3306/";
         String dbName = "hospital_db";
         String url = baseUrl + dbName + "?useSSL=false&serverTimezone=UTC";
-        String user = System.getenv("DB_USER") != null ? System.getenv("DB_USER") : "root";
-        String password = System.getenv("DB_PASSWORD") != null ? System.getenv("DB_PASSWORD") : "target";
+        Dotenv dotenv = Dotenv.load();
+        String user = "root";
+        String password = dotenv.get("DB_PASSWORD");
 
         // Load MySQL JDBC Driver
         try {
