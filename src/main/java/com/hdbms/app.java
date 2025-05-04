@@ -326,6 +326,8 @@ public class app {
         System.out.print("Do you want to proceed for login? (Yes/No): ");
         String proceedForLogin = scanner.nextLine();
         if (proceedForLogin.equalsIgnoreCase("Yes")) {
+            System.out.println("=================================================");
+            System.out.println("Proceeding for login...");
             login(scanner);
         }
     }
