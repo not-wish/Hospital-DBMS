@@ -10,6 +10,7 @@ import java.util.Scanner;
 import com.hdbms.models.Doctor;
 import com.hdbms.models.Patient;
 import com.hdbms.models.User;
+import com.hdbms.services.HospitalDatabaseSetup;
 
 
 // class HashUtil {
@@ -188,6 +189,8 @@ public class app {
     static HashMap<String, User> userDatabase = new HashMap<>();
 
     public static void main(String[] args) {
+        HospitalDatabaseSetup.runSetup(args);
+
         Scanner scanner = new Scanner(System.in);
         int choice = -1;
 
@@ -233,6 +236,7 @@ public class app {
 
         if (userDatabase.containsKey(username) && userDatabase.get(username).getPassword().equals(password)) {
             System.out.println("Login successful! Welcome, " + username + ".");
+            // Run the dashboard for that role
         } else {
             System.out.println("Invalid username or password. Please try again.");
         }
@@ -297,10 +301,10 @@ public class app {
 
             System.out.print("Enter blood group: ");
             patient.setBloodGroup(scanner.nextLine());
-            System.out.print("Enter past surgeries (if any): ");
-            patient.setPastSurgeries(scanner.nextLine());
-            System.out.print("Enter referred by: ");
-            patient.setReferredBy(scanner.nextLine());
+            // System.out.print("Enter past surgeries (if any): ");
+            // patient.setPastSurgeries(scanner.nextLine());
+            // System.out.print("Enter referred by: ");
+            // patient.setReferredBy(scanner.nextLine());
 
             userDatabase.put(username, patient);
         } else if (role.equalsIgnoreCase("D")) {
@@ -316,8 +320,8 @@ public class app {
             doctor.setDepartment(scanner.nextLine());
             System.out.print("Enter ID number: ");
             doctor.setIdNumber(scanner.nextLine());
-            System.out.print("Enter date of joining: ");
-            doctor.setDateOfJoining(scanner.nextLine());
+            // System.out.print("Enter date of joining: ");
+            // doctor.setDateOfJoining(scanner.nextLine());
 
             userDatabase.put(username, doctor);
         }

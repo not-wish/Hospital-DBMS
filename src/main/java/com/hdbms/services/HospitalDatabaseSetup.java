@@ -13,7 +13,7 @@ public class HospitalDatabaseSetup {
         String dbName = "hospital_db";
         String url = baseUrl + dbName + "?useSSL=false&serverTimezone=UTC";
         String user = System.getenv("DB_USER") != null ? System.getenv("DB_USER") : "root";
-        String password = System.getenv("DB_PASSWORD") != null ? System.getenv("DB_PASSWORD") : "9347384518";
+        String password = System.getenv("DB_PASSWORD") != null ? System.getenv("DB_PASSWORD") : "target";
 
         // Load MySQL JDBC Driver
         try {
@@ -266,6 +266,8 @@ public class HospitalDatabaseSetup {
                                ", Error Code: " + e.getErrorCode());
             e.printStackTrace();
         }
+    System.out.println("Database setup completed successfully.");
+    
     }
 
    /*  public static void main(String[] args) {

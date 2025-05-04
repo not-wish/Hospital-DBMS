@@ -3,7 +3,7 @@ package com.hdbms.models;
 public class Doctor extends User {
     private String department;
     private String idNumber;
-    private String dateOfJoining;
+    // private String dateOfJoining;
 
     // Getters and Setters
     public String getDepartment() {
@@ -22,11 +22,11 @@ public class Doctor extends User {
         this.idNumber = idNumber;
     }
 
-    public String getDateOfJoining() {
-        return dateOfJoining;
-    }
+    // public String getDateOfJoining() {
+    //     return dateOfJoining;
+    // }
 
-    public void setDateOfJoining(String dateOfJoining) {
-        this.dateOfJoining = dateOfJoining;
-    }
+    // public void setDateOfJoining(String dateOfJoining) {
+    //     this.dateOfJoining = dateOfJoining;
+    // }
 }

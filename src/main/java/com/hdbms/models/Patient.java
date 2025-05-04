@@ -2,8 +2,8 @@ package com.hdbms.models;
 
 public class Patient extends User {
     private String bloodGroup;
-    private String pastSurgeries;
-    private String referredBy;
+    // private String pastSurgeries;
+    // private String referredBy;
     private String dateOfBirth;
 
     // Getters and Setters
@@ -15,21 +15,21 @@ public class Patient extends User {
         this.bloodGroup = bloodGroup;
     }
 
-    public String getPastSurgeries() {
-        return pastSurgeries;
-    }
+    // public String getPastSurgeries() {
+    //     return pastSurgeries;
+    // }
 
-    public void setPastSurgeries(String pastSurgeries) {
-        this.pastSurgeries = pastSurgeries;
-    }
+    // public void setPastSurgeries(String pastSurgeries) {
+    //     this.pastSurgeries = pastSurgeries;
+    // }
 
-    public String getReferredBy() {
-        return referredBy;
-    }
+    // public String getReferredBy() {
+    //     return referredBy;
+    // }
 
-    public void setReferredBy(String referredBy) {
-        this.referredBy = referredBy;
-    }
+    // public void setReferredBy(String referredBy) {
+    //     this.referredBy = referredBy;
+    // }
 
     public String getDateOfBirth() {
         return dateOfBirth;
