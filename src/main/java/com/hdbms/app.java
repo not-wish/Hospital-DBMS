@@ -7,11 +7,11 @@ import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+import com.hdbms.DAO.UserDAOImpl;
 import com.hdbms.models.Doctor;
 import com.hdbms.models.Patient;
 import com.hdbms.models.User;
 import com.hdbms.services.HospitalDatabaseSetup;
-
 
 // class HashUtil {
 //     public static String generateKey(String user) throws NoSuchAlgorithmException {
@@ -245,19 +245,21 @@ public class app {
     public static void register(Scanner scanner) {
         System.out.print("Enter username: ");
         String username = scanner.nextLine();
+        UserDAOImpl userDAOImpl = new UserDAOImpl();
 
-        if (userDatabase.containsKey(username)) {
+        if (userDatabase.containsKey(username) || userDAOImpl.getUserByUsername(username)) {
+            // Check if the username already exists in the database
             System.out.println("Username already exists. Please choose a different username.");
             return;
         }
 
         System.out.print("Enter password: ");
         String password = scanner.nextLine();
+
         System.out.print("Enter name: ");
         String name = scanner.nextLine();
         System.out.print("Enter surname: ");
         String surname = scanner.nextLine();
-
         String gender;
         do {
             System.out.print("Enter gender (F/M/Other): ");
@@ -275,13 +277,15 @@ public class app {
         }
 
         if (role.equalsIgnoreCase("P")) {
+            // Create a new Patient object and set its properties
             Patient patient = new Patient();
             patient.setUsername(username);
             patient.setPassword(password);
             patient.setName(name);
             patient.setSurname(surname);
             patient.setGender(gender);
-            patient.createHashID();
+            userDAOImpl.saveUser(patient.createHashID(), username, password, "patient");
+            
 
             System.out.print("Enter date of birth (YYYY-MM-DD): ");
             String dob = scanner.nextLine();
@@ -308,13 +312,15 @@ public class app {
 
             userDatabase.put(username, patient);
         } else if (role.equalsIgnoreCase("D")) {
+            // Create a new Doctor object and set its properties
             Doctor doctor = new Doctor();
             doctor.setUsername(username);
             doctor.setPassword(password);
             doctor.setName(name);
             doctor.setSurname(surname);
             doctor.setGender(gender);
-            doctor.createHashID();
+            userDAOImpl.saveUser(doctor.createHashID(), username, password, "doctor");
+            
 
             System.out.print("Enter department: ");
             doctor.setDepartment(scanner.nextLine());

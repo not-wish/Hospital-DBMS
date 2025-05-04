@@ -71,13 +71,15 @@ public class User {
     }
 
     // create and set hash id
-    public void createHashID() {
+    public String createHashID() {
         try {
         setHashID(HashUtil.generateKey(getUsername()));
+          return getHashID();   
         
         } catch (NoSuchAlgorithmException e) {
             System.out.println("Encountered No Such Algorithm Exception");
             System.out.println(e);
         }
+        return null;
     }
 }

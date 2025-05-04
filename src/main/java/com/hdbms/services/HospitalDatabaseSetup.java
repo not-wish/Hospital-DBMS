@@ -66,7 +66,8 @@ public class HospitalDatabaseSetup {
                         "CREATE TABLE IF NOT EXISTS users (" +
                         "hash_id VARCHAR(64) PRIMARY KEY, " +
                         "username VARCHAR(100) UNIQUE NOT NULL, " +
-                        "password VARCHAR(255) NOT NULL" +
+                        "password VARCHAR(255) NOT NULL," +
+                        "role ENUM('admin', 'doctor', 'receptionist', 'lab_technician', 'patient') NOT NULL" +
                         ")"
                     );
                     // System.out.println("Table 'users' created or already exists.");
