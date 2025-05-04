@@ -1,6 +1,8 @@
+package com.hdbms.services;
+
 import java.time.LocalDate;
 
-class Billing {
+public class Billing {
     private String billingID;
     private String patientID;
     private double amount;

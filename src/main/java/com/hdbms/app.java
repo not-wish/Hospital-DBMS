@@ -1,5 +1,5 @@
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+package com.hdbms;
+
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
@@ -7,177 +7,182 @@ import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-class HashUtil {
-    public static String generateKey(String user) throws NoSuchAlgorithmException {
-        try {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+import com.hdbms.models.Doctor;
+import com.hdbms.models.Patient;
+import com.hdbms.models.User;
+
+
+// class HashUtil {
+//     public static String generateKey(String user) throws NoSuchAlgorithmException {
+//         try {
+//         MessageDigest digest = MessageDigest.getInstance("SHA-256");
             
-        byte[] hash = digest.digest(user.getBytes());
+//         byte[] hash = digest.digest(user.getBytes());
 
-        StringBuilder hexID = new StringBuilder();
+//         StringBuilder hexID = new StringBuilder();
 
-        for (byte b : hash) {
-            hexID.append(String.format("%02x", b));  // %02x = 2-digit hex
-        }
+//         for (byte b : hash) {
+//             hexID.append(String.format("%02x", b));  // %02x = 2-digit hex
+//         }
 
-        return hexID.toString();
-        } catch (NoSuchAlgorithmException e) {
-            System.out.println(e);
-        }
+//         return hexID.toString();
+//         } catch (NoSuchAlgorithmException e) {
+//             System.out.println(e);
+//         }
 
-        return "NULL";
-    }
-}
+//         return "NULL";
+//     }
+// }
 
-class User {
-    private String username;
-    private String password;
-    private String name;
-    private String surname;
-    private int age;
-    private String gender;
-    private String hashid;
+// class User {
+//     private String username;
+//     private String password;
+//     private String name;
+//     private String surname;
+//     private int age;
+//     private String gender;
+//     private String hashid;
 
-    // Getters and Setters
-    public String getUsername() {
-        return username;
-    }
+//     // Getters and Setters
+//     public String getUsername() {
+//         return username;
+//     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+//     public void setUsername(String username) {
+//         this.username = username;
+//     }
 
-    public String getPassword() {
-        return password;
-    }
+//     public String getPassword() {
+//         return password;
+//     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+//     public void setPassword(String password) {
+//         this.password = password;
+//     }
 
-    public String getName() {
-        return name;
-    }
+//     public String getName() {
+//         return name;
+//     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+//     public void setName(String name) {
+//         this.name = name;
+//     }
 
-    public String getSurname() {
-        return surname;
-    }
+//     public String getSurname() {
+//         return surname;
+//     }
 
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
+//     public void setSurname(String surname) {
+//         this.surname = surname;
+//     }
 
-    public int getAge() {
-        return age;
-    }
+//     public int getAge() {
+//         return age;
+//     }
 
-    public void setAge(int age) {
-        this.age = age;
-    }
+//     public void setAge(int age) {
+//         this.age = age;
+//     }
 
-    public String getGender() {
-        return gender;
-    }
+//     public String getGender() {
+//         return gender;
+//     }
 
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
+//     public void setGender(String gender) {
+//         this.gender = gender;
+//     }
 
-    public void setHashID(String hashid) {
-        this.hashid = hashid;
-    }
+//     public void setHashID(String hashid) {
+//         this.hashid = hashid;
+//     }
 
-    public String getHashID() {
-        return this.hashid;
-    }
+//     public String getHashID() {
+//         return this.hashid;
+//     }
 
-    // create and set hash id
-    public void createHashID() {
-        try {
-        setHashID(HashUtil.generateKey(getUsername()));
+//     // create and set hash id
+//     public void createHashID() {
+//         try {
+//         setHashID(HashUtil.generateKey(getUsername()));
         
-        } catch (NoSuchAlgorithmException e) {
-            System.out.println("Encountered No Such Algorithm Exception");
-            System.out.println(e);
-        }
-    }
-}
+//         } catch (NoSuchAlgorithmException e) {
+//             System.out.println("Encountered No Such Algorithm Exception");
+//             System.out.println(e);
+//         }
+//     }
+// }
 
-class Patient extends User {
-    private String bloodGroup;
-    private String pastSurgeries;
-    private String referredBy;
-    private String dateOfBirth;
+// class Patient extends User {
+//     private String bloodGroup;
+//     private String pastSurgeries;
+//     private String referredBy;
+//     private String dateOfBirth;
 
-    // Getters and Setters
-    public String getBloodGroup() {
-        return bloodGroup;
-    }
+//     // Getters and Setters
+//     public String getBloodGroup() {
+//         return bloodGroup;
+//     }
 
-    public void setBloodGroup(String bloodGroup) {
-        this.bloodGroup = bloodGroup;
-    }
+//     public void setBloodGroup(String bloodGroup) {
+//         this.bloodGroup = bloodGroup;
+//     }
 
-    public String getPastSurgeries() {
-        return pastSurgeries;
-    }
+//     public String getPastSurgeries() {
+//         return pastSurgeries;
+//     }
 
-    public void setPastSurgeries(String pastSurgeries) {
-        this.pastSurgeries = pastSurgeries;
-    }
+//     public void setPastSurgeries(String pastSurgeries) {
+//         this.pastSurgeries = pastSurgeries;
+//     }
 
-    public String getReferredBy() {
-        return referredBy;
-    }
+//     public String getReferredBy() {
+//         return referredBy;
+//     }
 
-    public void setReferredBy(String referredBy) {
-        this.referredBy = referredBy;
-    }
+//     public void setReferredBy(String referredBy) {
+//         this.referredBy = referredBy;
+//     }
 
-    public String getDateOfBirth() {
-        return dateOfBirth;
-    }
+//     public String getDateOfBirth() {
+//         return dateOfBirth;
+//     }
 
-    public void setDateOfBirth(String dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
-    }
+//     public void setDateOfBirth(String dateOfBirth) {
+//         this.dateOfBirth = dateOfBirth;
+//     }
 
-}
+// }
 
-class Doctor extends User {
-    private String department;
-    private String idNumber;
-    private String dateOfJoining;
+// class Doctor extends User {
+//     private String department;
+//     private String idNumber;
+//     private String dateOfJoining;
 
-    // Getters and Setters
-    public String getDepartment() {
-        return department;
-    }
+//     // Getters and Setters
+//     public String getDepartment() {
+//         return department;
+//     }
 
-    public void setDepartment(String department) {
-        this.department = department;
-    }
+//     public void setDepartment(String department) {
+//         this.department = department;
+//     }
 
-    public String getIdNumber() {
-        return idNumber;
-    }
+//     public String getIdNumber() {
+//         return idNumber;
+//     }
 
-    public void setIdNumber(String idNumber) {
-        this.idNumber = idNumber;
-    }
+//     public void setIdNumber(String idNumber) {
+//         this.idNumber = idNumber;
+//     }
 
-    public String getDateOfJoining() {
-        return dateOfJoining;
-    }
+//     public String getDateOfJoining() {
+//         return dateOfJoining;
+//     }
 
-    public void setDateOfJoining(String dateOfJoining) {
-        this.dateOfJoining = dateOfJoining;
-    }
-}
+//     public void setDateOfJoining(String dateOfJoining) {
+//         this.dateOfJoining = dateOfJoining;
+//     }
+// }
 
 public class app {
     static HashMap<String, User> userDatabase = new HashMap<>();
