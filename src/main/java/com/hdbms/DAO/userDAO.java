@@ -8,5 +8,6 @@ public interface userDAO {
     boolean getUserByUsername(String username);
     boolean validateCredentials(String username, String password);
     String getUserRole(String username);
+    String getUserId(String username);
     // List<User> getUsers();
 }
