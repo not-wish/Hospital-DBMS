@@ -15,6 +15,43 @@ public class DoctorDashboard {
         Dotenv dotenv = Dotenv.load();
         this.url = dotenv.get("DB_URL");
         this.password = dotenv.get("DB_PASSWORD");
+
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("\nWelcome to Your Doctor Dashboard!");
+        System.out.println("Your Unique Hash ID: " + doctorHashId);
+        
+        while (true) {
+            System.out.println("\nChoose an option:");
+            System.out.println("1. View Scheduled Appointments");
+            System.out.println("2. Prescribe Medicine");
+            System.out.println("3. Exit");
+
+            System.out.print("Enter choice: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
+
+            switch (choice) {
+                case 1:
+                    viewAppointments();
+                    break;
+                case 2:
+                    System.out.print("\nEnter Patient Hash ID: ");
+                    String patientHashId = scanner.nextLine();
+                    System.out.print("Enter Medicine Name: ");
+                    String medicine = scanner.nextLine();
+                    System.out.print("Enter Dosage: ");
+                    String dosage = scanner.nextLine();
+                    prescribeMedicine(patientHashId, medicine, dosage);
+                    break;
+                case 3:
+                    System.out.println("Exiting dashboard. Goodbye!");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
     }
 
     // View scheduled appointments based on Hash ID
@@ -52,46 +89,6 @@ public class DoctorDashboard {
             System.out.println("\nPrescription added successfully for Patient ID: " + patientHashId);
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-    }
-
-    // Interactive Doctor Dashboard
-    public void showDashboard() {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("\nWelcome to Your Doctor Dashboard!");
-        System.out.println("Your Unique Hash ID: " + doctorHashId);
-        
-        while (true) {
-            System.out.println("\nChoose an option:");
-            System.out.println("1. View Scheduled Appointments");
-            System.out.println("2. Prescribe Medicine");
-            System.out.println("3. Exit");
-
-            System.out.print("Enter choice: ");
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
-
-            switch (choice) {
-                case 1:
-                    viewAppointments();
-                    break;
-                case 2:
-                    System.out.print("\nEnter Patient Hash ID: ");
-                    String patientHashId = scanner.nextLine();
-                    System.out.print("Enter Medicine Name: ");
-                    String medicine = scanner.nextLine();
-                    System.out.print("Enter Dosage: ");
-                    String dosage = scanner.nextLine();
-                    prescribeMedicine(patientHashId, medicine, dosage);
-                    break;
-                case 3:
-                    System.out.println("Exiting dashboard. Goodbye!");
-                    scanner.close();
-                    return;
-                default:
-                    System.out.println("Invalid choice. Please try again.");
-            }
         }
     }
 }
