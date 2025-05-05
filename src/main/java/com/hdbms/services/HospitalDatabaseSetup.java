@@ -189,21 +189,21 @@ public class HospitalDatabaseSetup {
                         "gender ENUM('M', 'F', 'Other') NOT NULL, " +
                         "age INT NOT NULL, " +
                         "blood_group VARCHAR(10), " +
-                        "medical_history TEXT,"+
+                        // "medical_history TEXT,"+
                       //  "past_surgeries TEXT, " +
                       //  "referred_by VARCHAR(100), " +
                         "date_of_birth DATE NOT NULL, " +
-                        "address VARCHAR(255), " +
-                        "email VARCHAR(255) UNIQUE, " +
+                        // "address VARCHAR(255), " +
+                        // "email VARCHAR(255) UNIQUE, " +
                         "phone_number VARCHAR(20), " +
-                        "doctor_hash_id VARCHAR(64), " +
-                        "receptionist_hash_id VARCHAR(64), " +
-                        "technician_hash_id VARCHAR(64), " +
-                        "additional_info TEXT, " +
-                        "FOREIGN KEY (hash_id) REFERENCES users(hash_id) ON DELETE CASCADE, " +
-                        "FOREIGN KEY (doctor_hash_id) REFERENCES doctor(hash_id) ON DELETE SET NULL, " +
-                        "FOREIGN KEY (receptionist_hash_id) REFERENCES receptionist(hash_id) ON DELETE SET NULL, " +
-                        "FOREIGN KEY (technician_hash_id) REFERENCES lab_technician(hash_id) ON DELETE SET NULL" +
+                        // "doctor_hash_id VARCHAR(64), " +
+                        // "receptionist_hash_id VARCHAR(64), " +
+                        // "technician_hash_id VARCHAR(64), " +
+                        // "additional_info TEXT, " +
+                        // "FOREIGN KEY (hash_id) REFERENCES users(hash_id) ON DELETE CASCADE, " +
+                        // "FOREIGN KEY (doctor_hash_id) REFERENCES doctor(hash_id) ON DELETE SET NULL, " +
+                        // "FOREIGN KEY (receptionist_hash_id) REFERENCES receptionist(hash_id) ON DELETE SET NULL, " +
+                        // "FOREIGN KEY (technician_hash_id) REFERENCES lab_technician(hash_id) ON DELETE SET NULL" +
                         ")"
                     );
                     // System.out.println("Table 'patient' created or already exists.");

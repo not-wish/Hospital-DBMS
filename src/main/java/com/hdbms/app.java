@@ -12,6 +12,7 @@ import com.hdbms.models.Doctor;
 import com.hdbms.models.Patient;
 import com.hdbms.models.User;
 import com.hdbms.services.HospitalDatabaseSetup;
+import com.hdbms.services.PatientDoctorService;
 
 // class HashUtil {
 //     public static String generateKey(String user) throws NoSuchAlgorithmException {
@@ -187,7 +188,7 @@ import com.hdbms.services.HospitalDatabaseSetup;
 
 public class app {
     static HashMap<String, User> userDatabase = new HashMap<>();
-    
+
 
     public static void main(String[] args) {
         HospitalDatabaseSetup.runSetup(args);
@@ -286,6 +287,8 @@ public class app {
             return;
         }
 
+        boolean isRegistered = false;
+
         if (role.equalsIgnoreCase("P")) {
             // Create a new Patient object and set its properties
             Patient patient = new Patient();
@@ -299,13 +302,13 @@ public class app {
 
             System.out.print("Enter date of birth (YYYY-MM-DD): ");
             String dob = scanner.nextLine();
-            patient.setDateOfBirth(dob);
 
             // Calculate age from DOB
             try {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                 LocalDate birthDate = LocalDate.parse(dob, formatter);
                 int age = Period.between(birthDate, LocalDate.now()).getYears();
+                patient.setDateOfBirth(dob);
                 patient.setAge(age);
                 System.out.println("Patient's age is: " + age);
             } catch (Exception e) {
@@ -315,6 +318,10 @@ public class app {
 
             System.out.print("Enter blood group: ");
             patient.setBloodGroup(scanner.nextLine());
+
+            PatientDoctorService patientDoctorService = new PatientDoctorService();
+
+            isRegistered = patientDoctorService.addPatient(patient.getHashID(), patient.getName(), patient.getSurname(), patient.getGender(), patient.getAge(), patient.getDateOfBirth());   
             // System.out.print("Enter past surgeries (if any): ");
             // patient.setPastSurgeries(scanner.nextLine());
             // System.out.print("Enter referred by: ");
@@ -338,6 +345,9 @@ public class app {
             doctor.setIdNumber(scanner.nextLine());
             // System.out.print("Enter date of joining: ");
             // doctor.setDateOfJoining(scanner.nextLine());
+
+            // isRegistered = false; // Assuming you don't need to save doctor in the database for now
+            // You can implement similar logic for doctors as you did for patients
 
             userDatabase.put(username, doctor);
         }
