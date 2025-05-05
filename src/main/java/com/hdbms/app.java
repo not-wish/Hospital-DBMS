@@ -234,6 +234,9 @@ public class app {
         System.out.print("Enter password: ");
         String password = scanner.nextLine();
 
+        System.out.println("Processing login...");
+        System.out.println("=================================================");
+
         if (userDatabase.containsKey(username) && userDatabase.get(username).getPassword().equals(password)) {
             System.out.println("Login successful! Welcome, " + username + ".");
             // Run the dashboard for that role
