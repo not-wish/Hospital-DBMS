@@ -111,14 +111,14 @@ public class HospitalDatabaseSetup {
                         "gender ENUM('M', 'F', 'Other') NOT NULL, " +
                         "department VARCHAR(100) NOT NULL, " +
                         "id_number VARCHAR(50) NOT NULL, " +
-                        "date_of_joining DATE NOT NULL, " +
-                        "admin_hash_id VARCHAR(64), " +
-                        "address VARCHAR(255), " +
-                        "email VARCHAR(255) UNIQUE, " +
-                        "phone_number VARCHAR(20), " +
-                        "additional_info TEXT, " +
+                        // "date_of_joining DATE NOT NULL, " +
+                        // "admin_hash_id VARCHAR(64), " +
+                        // "address VARCHAR(255), " +
+                        // "email VARCHAR(255) UNIQUE, " +
+                        // "phone_number VARCHAR(20), " +
+                        // "additional_info TEXT, " +
                         "FOREIGN KEY (hash_id) REFERENCES users(hash_id) ON DELETE CASCADE, " +
-                        "FOREIGN KEY (admin_hash_id) REFERENCES admin(hash_id) ON DELETE SET NULL" +
+                        // "FOREIGN KEY (admin_hash_id) REFERENCES admin(hash_id) ON DELETE SET NULL" +
                         ")"
                     );
                     // System.out.println("Table 'doctor' created or already exists.");

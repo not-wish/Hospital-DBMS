@@ -248,6 +248,19 @@ public class app {
         if ( userDAOImpl.validateCredentials(username, password) ) {// userDatabase.containsKey(username) && userDatabase.get(username).getPassword().equals(password)) {
             System.out.println("Login successful! Welcome, " + username + ".");
             // Run the dashboard for that role
+            String role = userDAOImpl.getUserRole(username);
+            if (role.equalsIgnoreCase("patient")) {
+                System.out.println("You are logged in as a Patient.");
+                // Call the patient dashboard or service
+            } else if (role.equalsIgnoreCase("doctor")) {
+                System.out.println("You are logged in as a Doctor.");
+                // Call the doctor dashboard or service
+            } else if (role.equalsIgnoreCase("receptionist")) {
+                System.out.println("You are logged in as a Receptionist.");
+                // Call the receptionist dashboard or service
+            } else {
+                System.out.println("Unknown role. Please contact support.");
+            }
         } else {
             System.out.println("Invalid username or password. Please try again.");
         }
