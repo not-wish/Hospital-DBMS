@@ -81,4 +81,31 @@ public class UserDAOImpl implements userDAO {
             return false;
         }
     }
+
+    @Override
+    public boolean validateCredentials(String username, String password) {
+        Dotenv dotenv = Dotenv.load();
+        String url = dotenv.get("DB_URL");
+        String dbUser = "root";
+        String dbPassword = dotenv.get("DB_PASSWORD");
+
+        String query = "SELECT password FROM users WHERE username = ?";
+
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword);
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                String storedPassword = rs.getString("password");
+                return storedPassword.equals(password); // Use hashing in production
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
 }

@@ -187,6 +187,7 @@ import com.hdbms.services.HospitalDatabaseSetup;
 
 public class app {
     static HashMap<String, User> userDatabase = new HashMap<>();
+    
 
     public static void main(String[] args) {
         HospitalDatabaseSetup.runSetup(args);
@@ -195,7 +196,11 @@ public class app {
         int choice = -1;
 
         do {
+
+            System.out.println("=================================================");
             System.out.println("\nWelcome to the Hospital DBMS!\n");
+            System.out.println("Please choose an option:");
+            System.out.println("=================================================");
             System.out.println("1. Login");
             System.out.println("2. Register");
             System.out.println("3. Exit");
@@ -237,7 +242,9 @@ public class app {
         System.out.println("Processing login...");
         System.out.println("=================================================");
 
-        if (userDatabase.containsKey(username) && userDatabase.get(username).getPassword().equals(password)) {
+        UserDAOImpl userDAOImpl = new UserDAOImpl();
+
+        if ( userDAOImpl.validateCredentials(username, password) ) {// userDatabase.containsKey(username) && userDatabase.get(username).getPassword().equals(password)) {
             System.out.println("Login successful! Welcome, " + username + ".");
             // Run the dashboard for that role
         } else {

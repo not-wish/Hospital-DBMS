@@ -6,5 +6,6 @@ public interface userDAO {
     // void deleteUser(User user);
     boolean getUserById(String hashId);
     boolean getUserByUsername(String username);
+    boolean validateCredentials(String username, String password);
     // List<User> getUsers();
 }
