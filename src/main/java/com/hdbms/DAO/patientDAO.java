@@ -1,15 +1,13 @@
 package com.hdbms.DAO;
 
-import java.util.List;
-
 import com.hdbms.models.Patient;
 
 public interface patientDAO {
 
-    void save(Patient patient);
-    void update(Patient patient);
-    void delete(Patient patient);
+    void addPatient(Patient patient);
+    void updatePatient(Patient patient);
+    void deletePatient(Patient patient);
     Patient getPatientById(int id);
-    List<Patient> getPatients();
+    // List<Patient> getPatients();
 
 }
