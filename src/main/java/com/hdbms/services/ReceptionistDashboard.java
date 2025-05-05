@@ -44,16 +44,22 @@ public class ReceptionistDashboard {
                 switch (choice) {
                     case 1:
                         scheduleAppointment(scanner);
+                        break;
                     case 2:
                         viewAppointments(scanner);
+                        break;
                     case 3:
                         cancelAppointment(scanner);
+                        break;
                     case 4:
                         updatePatientInfo(scanner);
+                        break;
                     case 5:
                         viewPatientInfo(scanner);
+                        break;
                     case 6:
                         viewDoctorInfo(scanner);
+                        break;
                     case 0:
                         System.out.println("Exiting Receptionist Dashboard.");
                         break;

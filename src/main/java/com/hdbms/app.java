@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.security.NoSuchAlgorithmException;
 
 import com.hdbms.DAO.UserDAOImpl;
 import com.hdbms.DAO.userDAO;
@@ -16,6 +17,8 @@ import com.hdbms.services.HospitalDatabaseSetup;
 import com.hdbms.services.PatientDoctorService;
 import com.hdbms.services.PatientDashboard;
 import com.hdbms.services.ReceptionistDashboard;
+import com.hdbms.services.DoctorDashboard;
+import com.hdbms.services.HashUtil;
 
 // class HashUtil {
 //     public static String generateKey(String user) throws NoSuchAlgorithmException {
@@ -258,7 +261,7 @@ public class app {
             } else if (role.equalsIgnoreCase("doctor")) {
                 // System.out.println("You are logged in as a Doctor.");
                 // Call the doctor dashboard or service
-                // DoctorDashboard doctorDashboard = new DoctorDashboard(userDAOImpl.getUserId(username));
+                DoctorDashboard doctorDashboard = new DoctorDashboard(userDAOImpl.getUserId(username));
             } else if (role.equalsIgnoreCase("receptionist")) {
                 // System.out.println("You are logged in as a Receptionist.");
                 // Call the receptionist dashboard or service
@@ -298,10 +301,10 @@ public class app {
             }
         } while (!gender.equals("F") && !gender.equals("M") && !gender.equals("Other"));
 
-        System.out.print("Are you a Patient or Doctor? (P/D): ");
+        System.out.print("Are you a Patient or Doctor or Receptionist? (P/D/R): ");
         String role = scanner.nextLine();
-        if (!role.equalsIgnoreCase("P") && !role.equalsIgnoreCase("D")) {
-            System.out.println("Invalid role. Please enter P for Patient or D for Doctor.");
+        if (!role.equalsIgnoreCase("P") && !role.equalsIgnoreCase("D") && !role.equalsIgnoreCase("R")) {
+            System.out.println("Invalid role. Please enter P for Patient or D for Doctor or R for Receptionist.");
             return;
         }
 
@@ -368,7 +371,21 @@ public class app {
             // You can implement similar logic for doctors as you did for patients
 
             userDatabase.put(username, doctor);
-        }
+        } else if (role.equalsIgnoreCase("R")) {
+            // Create a new Receptionist object and set its properties
+            // Receptionist receptionist = new Receptionist();
+            // receptionist.setUsername(username);
+            // receptionist.setPassword(password);
+            // receptionist.setName(name);
+            // receptionist.setSurname(surname);
+            // receptionist.set
+            try {
+                userDAOImpl.saveUser(HashUtil.generateKey(username), username, password, "receptionist");
+            } catch (NoSuchAlgorithmException e) {
+                System.out.println("Error generating key for receptionist: " + e.getMessage());
+                return;
+            }
+            }
 
         System.out.println("You are registered successfully!");
         System.out.print("Do you want to proceed for login? (Yes/No): ");
@@ -377,6 +394,6 @@ public class app {
             System.out.println("=================================================");
             System.out.println("Proceeding for login...");
             login(scanner);
-        }
+        } 
     }
 }

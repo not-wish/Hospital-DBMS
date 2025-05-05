@@ -10,7 +10,7 @@ public class DoctorDashboard {
     private final String user = "root";
     private final String password;
     private final String doctorHashId;
-    public DoctorDashboard(String doctorId) {
+    public DoctorDashboard(String doctorHashId) {
         this.doctorHashId = doctorHashId;
         Dotenv dotenv = Dotenv.load();
         this.url = dotenv.get("DB_URL");

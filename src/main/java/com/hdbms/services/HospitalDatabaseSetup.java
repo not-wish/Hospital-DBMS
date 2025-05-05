@@ -94,7 +94,7 @@
                             // "email VARCHAR(255) UNIQUE, " +
                             // "phone_number VARCHAR(20), " +
                             // "additional_info TEXT, " +
-                            "FOREIGN KEY (hash_id) REFERENCES users(hash_id) ON DELETE CASCADE, " +
+                            "FOREIGN KEY (hash_id) REFERENCES users(hash_id) ON DELETE CASCADE " +
                             // "FOREIGN KEY (admin_hash_id) REFERENCES admin(hash_id) ON DELETE SET NULL" +
                             ")"
                         );
@@ -121,7 +121,7 @@
                             // "medical_history TEXT,"+
                         //  "past_surgeries TEXT, " +
                         //  "referred_by VARCHAR(100), " +
-                            "date_of_birth DATE NOT NULL, " +
+                            "date_of_birth DATE NOT NULL " +
                             // "address VARCHAR(255), " +
                             // "email VARCHAR(255) UNIQUE, " +
                             // "phone_number VARCHAR(20), " +
