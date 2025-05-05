@@ -15,17 +15,18 @@ public class PatientDoctorService {
     }
 
     public boolean addPatient(String hashId, String name, String surname, String gender, int age,
-                              String dob) {
+            String dob) {
         String query = "INSERT INTO patient (hash_id, name, surname, gender, age, date_of_birth) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(url, user, password);
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+                PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, hashId);
             stmt.setString(2, name);
             stmt.setString(3, surname);
             stmt.setString(4, gender);
             stmt.setInt(5, age);
             stmt.setDate(6, Date.valueOf(dob));
-            // stmt.setString(7, doctorHashId); // Uncomment if you want to set doctor_hash_id
+            // stmt.setString(7, doctorHashId); // Uncomment if you want to set
+            // doctor_hash_id
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -33,23 +34,24 @@ public class PatientDoctorService {
         }
     }
 
-    // public boolean updatePatientDoctor(String patientHashId, String newDoctorHashId) {
-    //     String query = "UPDATE patient SET doctor_hash_id = ? WHERE hash_id = ?";
-    //     try (Connection conn = DriverManager.getConnection(url, user, password);
-    //          PreparedStatement stmt = conn.prepareStatement(query)) {
-    //         stmt.setString(1, newDoctorHashId);
-    //         stmt.setString(2, patientHashId);
-    //         return stmt.executeUpdate() > 0;
-    //     } catch (SQLException e) {
-    //         e.printStackTrace();
-    //         return false;
-    //     }
+    // public boolean updatePatientDoctor(String patientHashId, String
+    // newDoctorHashId) {
+    // String query = "UPDATE patient SET doctor_hash_id = ? WHERE hash_id = ?";
+    // try (Connection conn = DriverManager.getConnection(url, user, password);
+    // PreparedStatement stmt = conn.prepareStatement(query)) {
+    // stmt.setString(1, newDoctorHashId);
+    // stmt.setString(2, patientHashId);
+    // return stmt.executeUpdate() > 0;
+    // } catch (SQLException e) {
+    // e.printStackTrace();
+    // return false;
+    // }
     // }
 
     public boolean deletePatient(String hashId) {
         String query = "DELETE FROM patient WHERE hash_id = ?";
         try (Connection conn = DriverManager.getConnection(url, user, password);
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+                PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, hashId);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -57,4 +59,64 @@ public class PatientDoctorService {
             return false;
         }
     }
+
+    public boolean addDoctor(String hashId, String name, String surname, String gender, int age, String dob) {
+        String query = "INSERT INTO doctor (hash_id, name, surname, gender, age, date_of_birth) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+                PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, hashId);
+            stmt.setString(2, name);
+            stmt.setString(3, surname);
+            stmt.setString(4, gender);
+            stmt.setInt(5, age);
+            stmt.setDate(6, Date.valueOf(dob));
+            // stmt.setString(7, doctorHashId); // Uncomment if you want to set
+            // doctor_hash_id
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean deleteDoctor(String hashId) {
+        String query = "DELETE FROM doctor WHERE hash_id = ?";
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+                PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, hashId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean updatePatientDetails(String hashId, String newBloodGroup, String newDateOfBirth) {
+        String query = "UPDATE patient SET bloodGroup = ?, date_of_birth = ? WHERE hash_id = ?";
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+                PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, newBloodGroup);
+            stmt.setDate(2, Date.valueOf(newDateOfBirth)); // Ensure correct format (YYYY-MM-DD)
+            stmt.setString(3, hashId);
+            return stmt.executeUpdate() > 0; // Returns true if update succeeds
+        } catch (SQLException e) {
+            System.err.println("Database update erSror: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean updateDoctorDetails(String hashId, String newIdNumber, String newDepartment) {
+        String query = "UPDATE doctor SET IdNumber = ?, Department = ? WHERE hash_id = ?";
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+                PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, newIdNumber);
+            stmt.setDate(2, Date.valueOf(newDepartment)); // Ensure correct format (YYYY-MM-DD)
+            stmt.setString(3, hashId);
+            return stmt.executeUpdate() > 0; // Returns true if update succeeds
+        } catch (SQLException e) {
+            System.err.println("Database update error: " + e.getMessage());
+            return false;
+        }
+    }
+
 }
