@@ -108,4 +108,30 @@ public class UserDAOImpl implements userDAO {
 
         return false;
     }
+
+    @Override
+    public String getUserRole(String username) {
+        Dotenv dotenv = Dotenv.load();
+        String url = dotenv.get("DB_URL");
+        String dbUser = "root";
+        String dbPassword = dotenv.get("DB_PASSWORD");
+
+        String query = "SELECT role FROM users WHERE username = ?";
+
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword);
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("role"); // assumes 'role' column exists
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null; 
+    }
 }

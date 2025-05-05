@@ -7,5 +7,6 @@ public interface userDAO {
     boolean getUserById(String hashId);
     boolean getUserByUsername(String username);
     boolean validateCredentials(String username, String password);
+    String getUserRole(String username);
     // List<User> getUsers();
 }
