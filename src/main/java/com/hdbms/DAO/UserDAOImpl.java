@@ -134,4 +134,30 @@ public class UserDAOImpl implements userDAO {
 
         return null; 
     }
+
+    public String getUserId(String username) {
+        Dotenv dotenv = Dotenv.load();
+        String url = dotenv.get("DB_URL");
+        String dbUser = "root";
+        String dbPassword = dotenv.get("DB_PASSWORD");
+
+        String query = "SELECT hash_id FROM users WHERE username = ?";
+
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword);
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("hash_id"); // assumes 'hash_id' is a string (e.g., UUID)
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
 }

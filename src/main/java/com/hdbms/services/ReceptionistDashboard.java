@@ -1,10 +1,15 @@
 package com.hdbms.services;
 
 import java.sql.*;
+
 import io.github.cdimascio.dotenv.Dotenv;
+
 import java.util.*;
 
+import com.hdbms.DAO.UserDAOImpl;
+
 public class ReceptionistDashboard {
+
     private final String url;
     private final String user = "root";
     private final String password;
@@ -39,12 +44,18 @@ public class ReceptionistDashboard {
                 switch (choice) {
                     case 1:
                         scheduleAppointment(scanner);
-                        break;
                     case 2:
-                        // register(scanner);
-                        break;
+                        viewAppointments(scanner);
                     case 3:
-                        System.out.println("Thank you for using the Hospital DBMS!");
+                        cancelAppointment(scanner);
+                    case 4:
+                        updatePatientInfo(scanner);
+                    case 5:
+                        viewPatientInfo(scanner);
+                    case 6:
+                        viewDoctorInfo(scanner);
+                    case 0:
+                        System.out.println("Exiting Receptionist Dashboard.");
                         break;
                     default:
                         System.out.println("Invalid choice. Please try again.");
@@ -61,10 +72,292 @@ public class ReceptionistDashboard {
     }
 
     public void scheduleAppointment(Scanner scanner) {
-        System.out.println("Scheduling an appointment...");
-        // Implement the logic to schedule an appointment
-        System.out.print("Enter patient username: ");
-        
+        UserDAOImpl userDAOImpl = new UserDAOImpl();
+        Dotenv dotenv = Dotenv.load();
+        String url = dotenv.get("DB_URL");
+        String dbUser = "root";
+        String dbPassword = dotenv.get("DB_PASSWORD");
 
+        System.out.println("=================================================");
+        System.out.println("Scheduling an appointment...");
+
+        System.out.print("Enter patient username: ");
+        String patient_hash_id = userDAOImpl.getUserId(scanner.nextLine());
+        if (patient_hash_id == null) {
+            System.out.println("Patient not found.");
+            return;
+        }
+
+        System.out.print("Enter doctor username: ");
+        String doctor_hash_id = userDAOImpl.getUserId(scanner.nextLine());
+        if (doctor_hash_id == null) {
+            System.out.println("Doctor not found.");
+            return;
+        }
+
+        System.out.print("Enter appointment date and time (yyyy-MM-dd HH:mm:ss): ");
+        String datetimeInput = scanner.nextLine();
+        // Validate the datetime format (optional, but recommended)
+        String datetimeRegex = "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}";
+        if (!datetimeInput.matches(datetimeRegex)) {
+            System.out.println("Invalid date format. Please use yyyy-MM-dd HH:mm:ss.");
+            return;
+        }
+
+        System.out.print("Enter status (Scheduled, Completed, Cancelled): ");
+        String status = scanner.nextLine();
+
+        System.out.print("Enter any additional info (optional): ");
+        String additionalInfo = scanner.nextLine();
+        String hash_id = null;
+        try {
+            hash_id = HashUtil.generateKey(datetimeInput); // generate unique appointment ID
+        } catch (Exception e) {
+            System.out.println("Error generating appointment ID: " + e.getMessage());
+            return;
+        }
+
+        String query = "INSERT INTO appointment (hash_id, patient_hash_id, doctor_hash_id, appointment_date, status, additional_info) "
+                + "VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword); PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, hash_id);
+            stmt.setString(2, patient_hash_id);
+            stmt.setString(3, doctor_hash_id);
+            stmt.setString(4, datetimeInput); // assumes user enters valid format
+            stmt.setString(5, status);
+            stmt.setString(6, additionalInfo.isEmpty() ? null : additionalInfo);
+
+            int rowsInserted = stmt.executeUpdate();
+
+            if (rowsInserted > 0) {
+                System.out.println("Appointment scheduled successfully with ID: " + hash_id);
+            } else {
+                System.out.println("Failed to schedule appointment.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
+
+    private void viewAppointments(Scanner scanner) {
+        Dotenv dotenv = Dotenv.load();
+        String url = dotenv.get("DB_URL");
+        String dbUser = "root";
+        String dbPassword = dotenv.get("DB_PASSWORD");
+
+        System.out.println("=================================================");
+        System.out.println("Viewing all appointments...");
+
+        String query = "SELECT a.hash_id, u1.username AS patient_username, u2.username AS doctor_username, "
+                + "a.appointment_date, a.status, a.additional_info "
+                + "FROM appointment a "
+                + "JOIN user u1 ON a.patient_hash_id = u1.hash_id "
+                + "JOIN user u2 ON a.doctor_hash_id = u2.hash_id";
+
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+
+            System.out.printf("%-15s %-20s %-20s %-20s %-15s %-30s%n",
+                    "Appointment ID", "Patient Username", "Doctor Username",
+                    "Appointment Date", "Status", "Additional Info");
+            System.out.println("===========================================================================================");
+
+            while (rs.next()) {
+                String appointmentId = rs.getString("hash_id");
+                String patientUsername = rs.getString("patient_username");
+                String doctorUsername = rs.getString("doctor_username");
+                String appointmentDate = rs.getString("appointment_date");
+                String status = rs.getString("status");
+                String additionalInfo = rs.getString("additional_info");
+
+                System.out.printf("%-15s %-20s %-20s %-20s %-15s %-30s%n",
+                        appointmentId, patientUsername, doctorUsername,
+                        appointmentDate, status, additionalInfo != null ? additionalInfo : "N/A");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error retrieving appointments: " + e.getMessage());
+        }
+    }
+
+    private void cancelAppointment(Scanner scanner) {
+        Dotenv dotenv = Dotenv.load();
+        String url = dotenv.get("DB_URL");
+        String dbUser = "root";
+        String dbPassword = dotenv.get("DB_PASSWORD");
+
+        System.out.println("=================================================");
+        System.out.println("Cancelling an appointment...");
+
+        System.out.print("Enter the appointment ID to cancel: ");
+        String appointmentId = scanner.nextLine();
+
+        String query = "DELETE FROM appointment WHERE hash_id = ?";
+
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword); PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, appointmentId);
+
+            int rowsDeleted = stmt.executeUpdate();
+
+            if (rowsDeleted > 0) {
+                System.out.println("Appointment with ID " + appointmentId + " has been successfully cancelled.");
+            } else {
+                System.out.println("No appointment found with the given ID.");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error cancelling appointment: " + e.getMessage());
+        }
+    }
+
+    private void updatePatientInfo(Scanner scanner) {
+        System.out.println("== Update Patient Information feature is coming soon. Stay tuned. ==");
+    }
+
+    private void viewAppointments() {
+        System.out.println("=================================================");
+        System.out.println("Viewing all upcoming appointments...");
+
+        String query = "SELECT a.hash_id, a.appointment_date, a.status, a.additional_info, "
+                + "p.username AS patient_username, d.username AS doctor_username "
+                + "FROM appointment a "
+                + "JOIN user p ON a.patient_hash_id = p.hash_id "
+                + "JOIN user d ON a.doctor_hash_id = d.hash_id "
+                + "ORDER BY a.appointment_date ASC";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+
+            System.out.printf("%-15s %-20s %-15s %-15s %-15s %-30s%n",
+                    "Appointment ID", "Date", "Patient", "Doctor", "Status", "Additional Info");
+            System.out.println("------------------------------------------------------------------------------------------");
+
+            boolean hasResults = false;
+            while (rs.next()) {
+                hasResults = true;
+                String id = rs.getString("hash_id");
+                String date = rs.getString("appointment_date");
+                String patient = rs.getString("patient_username");
+                String doctor = rs.getString("doctor_username");
+                String status = rs.getString("status");
+                String info = rs.getString("additional_info");
+
+                System.out.printf("%-15s %-20s %-15s %-15s %-15s %-30s%n",
+                        id, date, patient, doctor, status, info != null ? info : "-");
+            }
+
+            if (!hasResults) {
+                System.out.println("No appointments found.");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("SQL error: " + e.getMessage());
+        }
+    }
+
+    private void viewPatientInfo(Scanner scanner) {
+        Dotenv dotenv = Dotenv.load();
+        String url = "jdbc:mysql://localhost:3306/hospital_db?useSSL=false&serverTimezone=UTC";
+        String dbUser = "root";
+        String dbPassword = dotenv.get("DB_PASSWORD");
+
+        System.out.println("=================================================");
+        System.out.println("Viewing patient information...");
+
+        System.out.print("Enter patient username: ");
+        String patientUsername = scanner.nextLine();
+
+        String query = "SELECT u.hash_id, u.username, p.name, p.surname, p.gender, p.age, p.blood_group, p.date_of_birth "
+                + "FROM users u JOIN patient p ON u.hash_id = p.hash_id "
+                + "WHERE u.username = ?";
+
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword); PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, patientUsername);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String hashId = rs.getString("hash_id");
+                    String username = rs.getString("username");
+                    String name = rs.getString("name");
+                    String surname = rs.getString("surname");
+                    String gender = rs.getString("gender");
+                    int age = rs.getInt("age");
+                    String bloodGroup = rs.getString("blood_group");
+                    java.sql.Date dob = rs.getDate("date_of_birth");
+
+                    System.out.println("=================================================");
+                    System.out.println("Patient Information:");
+                    System.out.println("-------------------------------------------------");
+                    System.out.println("ID: " + hashId);
+                    System.out.println("Username: " + username);
+                    System.out.println("Name: " + name + " " + surname);
+                    System.out.println("Gender: " + gender);
+                    System.out.println("Age: " + age);
+                    System.out.println("Blood Group: " + (bloodGroup != null ? bloodGroup : "N/A"));
+                    System.out.println("Date of Birth: " + dob);
+                    System.out.println("=================================================");
+                } else {
+                    System.out.println("No patient found with the given username.");
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error retrieving patient information: " + e.getMessage());
+        }
+    }
+
+    private void viewDoctorInfo(Scanner scanner) {
+        Dotenv dotenv = Dotenv.load();
+        String url = dotenv.get("DB_URL");
+        String dbUser = "root";
+        String dbPassword = dotenv.get("DB_PASSWORD");
+
+        System.out.println("=================================================");
+        System.out.println("Viewing doctor information...");
+
+        System.out.print("Enter doctor username: ");
+        String doctorUsername = scanner.nextLine();
+
+        String query = "SELECT u.hash_id, u.username, d.name, d.surname, d.gender, d.department, d.id_number "
+                + "FROM users u "
+                + "JOIN doctor d ON u.hash_id = d.hash_id "
+                + "WHERE u.username = ?";
+
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword); PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, doctorUsername);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String hashId = rs.getString("hash_id");
+                    String username = rs.getString("username");
+                    String name = rs.getString("name");
+                    String surname = rs.getString("surname");
+                    String gender = rs.getString("gender");
+                    String department = rs.getString("department");
+                    String idNumber = rs.getString("id_number");
+
+                    System.out.println("=================================================");
+                    System.out.println("Doctor Information:");
+                    System.out.println("-------------------------------------------------");
+                    System.out.println("ID: " + hashId);
+                    System.out.println("Username: " + username);
+                    System.out.println("Name: " + name + " " + surname);
+                    System.out.println("Gender: " + gender);
+                    System.out.println("Department: " + department);
+                    System.out.println("ID Number: " + idNumber);
+                    System.out.println("=================================================");
+                } else {
+                    System.out.println("No doctor found with the given username.");
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error retrieving doctor information: " + e.getMessage());
+        }
+    }
+
 }

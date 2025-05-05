@@ -8,11 +8,14 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import com.hdbms.DAO.UserDAOImpl;
+import com.hdbms.DAO.userDAO;
 import com.hdbms.models.Doctor;
 import com.hdbms.models.Patient;
 import com.hdbms.models.User;
 import com.hdbms.services.HospitalDatabaseSetup;
 import com.hdbms.services.PatientDoctorService;
+import com.hdbms.services.PatientDashboard;
+import com.hdbms.services.ReceptionistDashboard;
 
 // class HashUtil {
 //     public static String generateKey(String user) throws NoSuchAlgorithmException {
@@ -250,14 +253,16 @@ public class app {
             // Run the dashboard for that role
             String role = userDAOImpl.getUserRole(username);
             if (role.equalsIgnoreCase("patient")) {
-                System.out.println("You are logged in as a Patient.");
-                // Call the patient dashboard or service
+                // System.out.println("You are logged in as a Patient.");
+                PatientDashboard patientDashboard = new PatientDashboard(userDAOImpl.getUserId(username));
             } else if (role.equalsIgnoreCase("doctor")) {
-                System.out.println("You are logged in as a Doctor.");
+                // System.out.println("You are logged in as a Doctor.");
                 // Call the doctor dashboard or service
+                // DoctorDashboard doctorDashboard = new DoctorDashboard(userDAOImpl.getUserId(username));
             } else if (role.equalsIgnoreCase("receptionist")) {
-                System.out.println("You are logged in as a Receptionist.");
+                // System.out.println("You are logged in as a Receptionist.");
                 // Call the receptionist dashboard or service
+                ReceptionistDashboard receptionistDashboard = new ReceptionistDashboard();
             } else {
                 System.out.println("Unknown role. Please contact support.");
             }
