@@ -144,4 +144,23 @@ public class PatientDoctorService {
         return null; // or handle as needed
     }
 
+    public String getPatientName(String hash_id) {
+        String query = "SELECT name, surname FROM patient WHERE hash_id = ?";
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+                PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, hash_id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("name") + " " + rs.getString("surname"); // assumes 'role' column exists
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error fetching patient name: " + e.getMessage());
+            return "null"; // or handle as needed
+        }
+
+        return null; // or handle as needed
+    }
+
 }

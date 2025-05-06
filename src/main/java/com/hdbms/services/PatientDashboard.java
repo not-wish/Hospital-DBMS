@@ -46,7 +46,7 @@ public class PatientDashboard {
                     viewPrescriptions();
                     break;
                 case 3:
-                    viewPaymentStatus();
+                    viewAllInvoice();
                     break;
                 case 4:
                     System.out.println("Exiting dashboard. Goodbye!");
@@ -99,7 +99,7 @@ public class PatientDashboard {
 
     // Method to fetch prescriptions
     public void viewPrescriptions() {
-        String query = "SELECT medicine_name, dosage FROM prescriptions WHERE patient_id = ?";
+        String query = "SELECT * FROM prescriptions WHERE patient_hash_id = ?";
         try (Connection conn = DriverManager.getConnection(url, user, password);
                 PreparedStatement stmt = conn.prepareStatement(query)) {
 
@@ -108,8 +108,12 @@ public class PatientDashboard {
 
             System.out.println("\n--- Your Prescriptions ---");
             while (rs.next()) {
-                System.out.println("Medicine: " + rs.getString("medicine_name"));
-                System.out.println("Dosage: " + rs.getString("dosage"));
+                PatientDoctorService patientDoctorService = new PatientDoctorService();
+                System.out.println("Prescription ID: " + rs.getString("hash_id"));
+                System.out.println("Patient Name: " + patientDoctorService.getPatientName(rs.getString("patient_hash_id")));
+                System.out.println("Doctor Name: " + patientDoctorService.getDoctorName(rs.getString("doctor_hash_id")));
+                System.out.println("Medicine: " + rs.getString("medicines"));
+                System.out.println("Suggested Tests: " + rs.getString("suggested_tests"));
                 System.out.println("--------------------------");
             }
         } catch (SQLException e) {
@@ -118,26 +122,25 @@ public class PatientDashboard {
     }
 
     // Method to check payment status
-    public void viewPaymentStatus() {
-        String query = "SELECT payment_status FROM payments WHERE patient_id = ?";
+    public void viewAllInvoice() {
+        String query = "SELECT * FROM bill WHERE patient_hash_id = ?";
         try (Connection conn = DriverManager.getConnection(url, user, password);
                 PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, patientId);
             ResultSet rs = stmt.executeQuery();
 
-            System.out.println("\n--- Payment Status ---");
-            if (rs.next()) {
-                System.out.println("Status: " + (rs.getBoolean("payment_status") ? "Completed" : "Pending"));
-            } else {
-                System.out.println("No payment record found.");
+            System.out.println("\n--- All Invoice ---");
+            while (rs.next()) {
+                System.out.println("Bill ID: " + rs.getString("hash_id"));
+                System.out.println("Amount: " + rs.getString("amount"));
+                System.out.println("Bill Date: " + rs.getString("bill_date"));
+                System.out.println("Status: " + rs.getString("status"));
+                System.out.println("---------------------------------------------------------------------");
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    // Interactive menu for patients
-    public void showDashboard() {
-    }
 }
