@@ -75,16 +75,16 @@ public class PatientDashboard {
 
     // Method to fetch appointments
     public void viewAppointments() {
-        String query = "SELECT appointment_date, doctor_hash_id, status, additional_info FROM appointment WHERE patient_id = ?";
+        String query = "SELECT appointment_date, doctor_hash_id, status, additional_info FROM appointment WHERE patient_hash_id = ?";
         try (Connection conn = DriverManager.getConnection(url, user, password);
                 PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, patientId);
             ResultSet rs = stmt.executeQuery();
 
+            PatientDoctorService doctorService = new PatientDoctorService(); // to fetch doctor names
             System.out.println("\n--- Your Appointments ---");
             while (rs.next()) {
-                PatientDoctorService doctorService = new PatientDoctorService();
                 String doctor_name = doctorService.getDoctorName(rs.getString("doctor_hash_id"));
                 System.out.println("Date: " + rs.getString("appointment_date"));
                 System.out.println("Doctor: " + doctor_name);

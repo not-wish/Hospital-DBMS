@@ -292,7 +292,7 @@ public class ReceptionistDashboard {
         System.out.print("Enter the appointment ID to cancel: ");
         String appointmentId = scanner.nextLine();
 
-        String query = "UPDATE appointment SET status = Cancelled WHERE hash_id = ?";
+        String query = "UPDATE appointment SET status = 'Cancelled' WHERE hash_id = ?";
 
         try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword);
                 PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -307,7 +307,91 @@ public class ReceptionistDashboard {
     }
 
     private void updatePatientInfo(Scanner scanner) {
-        System.out.println("== Update Patient Information feature is coming soon. Stay tuned. ==");
+        Dotenv dotenv = Dotenv.load();
+        String url = dotenv.get("DB_URL");
+        String dbUser = "root";
+        String dbPassword = dotenv.get("DB_PASSWORD");
+
+        System.out.println("=================================================");
+        System.out.println("Updating patient information...");
+
+        System.out.print("Enter patient username: ");
+        String patientUsername = scanner.nextLine();
+
+        // Get the hash_id using the method from PatientDoctorService
+        UserDAOImpl userDAOImpl = new UserDAOImpl();
+        String patientHashId = userDAOImpl.getUserId(patientUsername);
+
+        if (patientHashId == null) {
+            System.out.println("No patient found with the given username.");
+            return;
+        }
+
+        boolean updating = true;
+        while (updating) {
+            System.out.println("Select the field you want to update:");
+            System.out.println("1. Name");
+            System.out.println("2. Surname");
+            System.out.println("3. Gender");
+            System.out.println("4. Blood Group");
+            System.out.println("0. Exit");
+            System.out.print("Enter your choice: ");
+
+            int choice = Integer.parseInt(scanner.nextLine());
+            String field = null;
+            String newValue = null;
+
+            switch (choice) {
+                case 1:
+                    field = "name";
+                    System.out.print("Enter new name: ");
+                    newValue = scanner.nextLine();
+                    break;
+                case 2:
+                    field = "surname";
+                    System.out.print("Enter new surname: ");
+                    newValue = scanner.nextLine();
+                    break;
+                case 3:
+                    field = "gender";
+                    System.out.print("Enter new gender(M/F/Other): ");
+                    newValue = scanner.nextLine();
+                    break;
+                case 4:
+                    field = "blood_group";
+                    System.out.print("Enter new blood group: ");
+                    newValue = scanner.nextLine();
+                    break;
+                case 0:
+                    updating = false;
+                    continue;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+                    continue;
+            }
+
+            if (field != null && newValue != null) {
+                String query = "UPDATE patient SET " + field + " = ? WHERE hash_id = ?";
+                try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword);
+                     PreparedStatement stmt = conn.prepareStatement(query)) {
+
+                    stmt.setString(1, newValue);
+                    stmt.setString(2, patientHashId);
+
+                    int rowsUpdated = stmt.executeUpdate();
+                    if (rowsUpdated > 0) {
+                        System.out.println("Patient " + field + " updated successfully.");
+                    } else {
+                        System.out.println("Failed to update patient " + field + ".");
+                    }
+
+                } catch (SQLException e) {
+                    System.out.println("Error updating patient information: " + e.getMessage());
+                }
+            }
+        }
+
+        System.out.println("Exiting update menu.");
     }
 
     // private void viewAppointments() {

@@ -9,7 +9,6 @@ import java.sql.SQLException;
 import java.util.Scanner;
 
 import com.hdbms.DAO.UserDAOImpl;
-import com.hdbms.DAO.patientDAOImpl;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
@@ -57,18 +56,19 @@ public class DoctorDashboard {
 
     // View scheduled appointments based on Hash ID
     public void viewAppointments() {
-        String query = "SELECT patient_name, appointment_date, patient_hash_id FROM appointment WHERE doctor_hash_id = ?";
+        String query = "SELECT appointment_date, patient_hash_id, status, additional_info FROM appointment WHERE doctor_hash_id = ?";
         try (Connection conn = DriverManager.getConnection(url, user, password);
                 PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, doctorHashId);
             ResultSet rs = stmt.executeQuery();
-
+            PatientDoctorService patientDoctorService = new PatientDoctorService(); // to fetch patient name
             System.out.println("\n--- Scheduled Appointments ---");
             while (rs.next()) {
-                System.out.println("Patient: " + rs.getString("patient_name"));
+                System.out.println("Patient: " + patientDoctorService.getPatientName(rs.getString("patient_hash_id")));
                 System.out.println("Appointment Date: " + rs.getString("appointment_date"));
-                System.out.println("Patient Hash ID: " + rs.getString("patient_hash_id"));
+                System.out.println("Status: " + rs.getString("status"));
+                System.out.println("Additional Info: " + rs.getString("additional_info"));
                 System.out.println("------------------------------");
             }
         } catch (SQLException e) {
@@ -86,7 +86,9 @@ public class DoctorDashboard {
         try {
             System.out.println("Enter patient username: ");
             patient_hash_id = userDAOImpl.getUserId(scanner.nextLine());
+            System.out.println("Medicines: ");
             medicines = scanner.nextLine();
+            System.out.println("Suggested Tests: ");
             suggestedTests = scanner.nextLine();
             prescription_id = HashUtil.generateKey(patient_hash_id + doctorHashId + medicines + suggestedTests);
 
