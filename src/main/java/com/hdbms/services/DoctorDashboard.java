@@ -1,11 +1,15 @@
 package com.hdbms.services;
 
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Scanner;
+
+import com.hdbms.DAO.UserDAOImpl;
+import com.hdbms.DAO.patientDAOImpl;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
@@ -14,16 +18,16 @@ public class DoctorDashboard {
     private final String user = "root";
     private final String password;
     private final String doctorHashId;
+
     public DoctorDashboard(String doctorHashId, Scanner scanner) {
         this.doctorHashId = doctorHashId;
         Dotenv dotenv = Dotenv.load();
         this.url = dotenv.get("DB_URL");
         this.password = dotenv.get("DB_PASSWORD");
 
-
         System.out.println("\nWelcome to Your Doctor Dashboard!");
         System.out.println("Your Unique Hash ID: " + doctorHashId);
-        
+
         while (true) {
             System.out.println("\nChoose an option:");
             System.out.println("1. View Scheduled Appointments");
@@ -39,13 +43,8 @@ public class DoctorDashboard {
                     viewAppointments();
                     break;
                 case 2:
-                    System.out.print("\nEnter Patient Hash ID: ");
-                    String patientHashId = scanner.nextLine();
-                    System.out.print("Enter Medicine Name: ");
-                    String medicine = scanner.nextLine();
-                    System.out.print("Enter Dosage: ");
-                    String dosage = scanner.nextLine();
-                    prescribeMedicine(patientHashId, medicine, dosage);
+
+                    prescribeMedicine(scanner);
                     break;
                 case 3:
                     System.out.println("Exiting dashboard. Goodbye!");
@@ -60,7 +59,7 @@ public class DoctorDashboard {
     public void viewAppointments() {
         String query = "SELECT patient_name, appointment_date, patient_hash_id FROM appointment WHERE doctor_hash_id = ?";
         try (Connection conn = DriverManager.getConnection(url, user, password);
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+                PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, doctorHashId);
             ResultSet rs = stmt.executeQuery();
@@ -78,17 +77,35 @@ public class DoctorDashboard {
     }
 
     // Prescribe medicine to a specific patient
-    public void prescribeMedicine(String patientHashId, String medicine, String dosage) {
-        String query = "INSERT INTO prescriptions (patient_hash_id, medicine_name, dosage) VALUES (?, ?, ?)";
-        try (Connection conn = DriverManager.getConnection(url, user, password);
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+    public void prescribeMedicine(Scanner scanner) {
+        String patient_hash_id = null;
+        String medicines = null;
+        String suggestedTests = null;
+        String prescription_id = null;
+        UserDAOImpl userDAOImpl = new UserDAOImpl();
+        try {
+            System.out.println("Enter patient username: ");
+            patient_hash_id = userDAOImpl.getUserId(scanner.nextLine());
+            medicines = scanner.nextLine();
+            suggestedTests = scanner.nextLine();
+            prescription_id = HashUtil.generateKey(patient_hash_id + doctorHashId + medicines + suggestedTests);
 
-            stmt.setString(1, patientHashId);
-            stmt.setString(2, medicine);
-            stmt.setString(3, dosage);
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println(e);
+        }
+
+        String query = "INSERT INTO prescriptions (hash_id, patient_hash_id, doctor_hash_id, medicines, suggested_tests) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+                PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, prescription_id);
+            stmt.setString(2, patient_hash_id);
+            stmt.setString(3, doctorHashId);
+            stmt.setString(4, medicines);
+            stmt.setString(5, suggestedTests);
             stmt.executeUpdate();
 
-            System.out.println("\nPrescription added successfully for Patient ID: " + patientHashId);
+            System.out.println("\nPrescription added successfully for Patient ID: " + patient_hash_id);
         } catch (SQLException e) {
             e.printStackTrace();
         }
