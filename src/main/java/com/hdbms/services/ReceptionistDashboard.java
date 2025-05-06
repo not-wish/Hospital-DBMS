@@ -132,6 +132,8 @@ public class ReceptionistDashboard {
         System.out.println(status);
         System.out.println(additionalInfo);
 
+        // create billing method and if bill status = paid then the rest of the lines run
+
         String query = "INSERT INTO appointment (hash_id, patient_hash_id, doctor_hash_id, appointment_date, status, additional_info) "
                 + "VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -199,7 +201,7 @@ public class ReceptionistDashboard {
         }
     }
 
-    private void cancelAppointment(Scanner scanner) {
+    private boolean cancelAppointment(Scanner scanner) {
         Dotenv dotenv = Dotenv.load();
         String url = dotenv.get("DB_URL");
         String dbUser = "root";
@@ -211,22 +213,16 @@ public class ReceptionistDashboard {
         System.out.print("Enter the appointment ID to cancel: ");
         String appointmentId = scanner.nextLine();
 
-        String query = "DELETE FROM appointment WHERE hash_id = ?";
+        String query = "UPDATE appointment SET status = Cancelled WHERE hash_id = ?";
 
         try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword); PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, appointmentId);
 
-            int rowsDeleted = stmt.executeUpdate();
-
-            if (rowsDeleted > 0) {
-                System.out.println("Appointment with ID " + appointmentId + " has been successfully cancelled.");
-            } else {
-                System.out.println("No appointment found with the given ID.");
-            }
-
+            return stmt.executeUpdate() > 0; // Returns true if update succeeds
         } catch (SQLException e) {
-            System.out.println("Error cancelling appointment: " + e.getMessage());
+            System.err.println("Database update error: " + e.getMessage());
+            return false;
         }
     }
 

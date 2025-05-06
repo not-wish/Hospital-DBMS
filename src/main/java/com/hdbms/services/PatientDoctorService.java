@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import io.github.cdimascio.dotenv.Dotenv;
@@ -122,6 +123,25 @@ public class PatientDoctorService {
             System.err.println("Database update error: " + e.getMessage());
             return false;
         }
+    }
+
+    public String getDoctorName(String hash_id) {
+        String query = "SELECT name, surname FROM doctor WHERE hash_id = ?";
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+                PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, hash_id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("name") + " " + rs.getString("surname"); // assumes 'role' column exists
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error fetching doctor name: " + e.getMessage());
+            return "null"; // or handle as needed
+        }
+
+        return null; // or handle as needed
     }
 
 }

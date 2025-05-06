@@ -84,10 +84,12 @@ public class PatientDashboard {
 
             System.out.println("\n--- Your Appointments ---");
             while (rs.next()) {
-                String doctor_name = rs.getString("doctor_hash_id");
+                PatientDoctorService doctorService = new PatientDoctorService();
+                String doctor_name = doctorService.getDoctorName(rs.getString("doctor_hash_id"));
                 System.out.println("Date: " + rs.getString("appointment_date"));
                 System.out.println("Doctor: " + doctor_name);
                 System.out.println("Status: " + rs.getString("status"));
+                System.out.println("Additional Info: " + rs.getString("additional_info"));
                 System.out.println("-------------------------");
             }
         } catch (SQLException e) {
