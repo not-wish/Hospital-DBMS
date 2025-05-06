@@ -1,7 +1,12 @@
 package com.hdbms.services;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Scanner;
+
 import io.github.cdimascio.dotenv.Dotenv;
 
 public class PatientDashboard {
@@ -11,13 +16,12 @@ public class PatientDashboard {
 
     private final String patientId;
 
-    public PatientDashboard(String patientId) {
+    public PatientDashboard(String patientId, Scanner scanner) {
         this.patientId = patientId;
         Dotenv dotenv = Dotenv.load();
         this.url = dotenv.get("DB_URL");
         this.password = dotenv.get("DB_PASSWORD");
 
-        Scanner scanner = new Scanner(System.in);
         if (!authenticatePatient(patientId)) {
             System.out.println("Invalid Patient ID! Access Denied.");
             return;
@@ -46,7 +50,6 @@ public class PatientDashboard {
                     break;
                 case 4:
                     System.out.println("Exiting dashboard. Goodbye!");
-                    scanner.close();
                     return;
                 default:
                     System.out.println("Invalid choice. Please try again.");
@@ -57,7 +60,7 @@ public class PatientDashboard {
 
     // Authentication check
     public boolean authenticatePatient(String patientId) {
-        String query = "SELECT id FROM patients WHERE id = ?";
+        String query = "SELECT hash_id FROM patient WHERE hash_id = ?";
         try (Connection conn = DriverManager.getConnection(url, user, password);
                 PreparedStatement stmt = conn.prepareStatement(query)) {
 
@@ -72,7 +75,7 @@ public class PatientDashboard {
 
     // Method to fetch appointments
     public void viewAppointments() {
-        String query = "SELECT appointment_date, doctor_name, status FROM appointments WHERE patient_id = ?";
+        String query = "SELECT appointment_date, doctor_hash_id, status, additional_info FROM appointment WHERE patient_id = ?";
         try (Connection conn = DriverManager.getConnection(url, user, password);
                 PreparedStatement stmt = conn.prepareStatement(query)) {
 
@@ -81,8 +84,9 @@ public class PatientDashboard {
 
             System.out.println("\n--- Your Appointments ---");
             while (rs.next()) {
+                String doctor_name = rs.getString("doctor_hash_id");
                 System.out.println("Date: " + rs.getString("appointment_date"));
-                System.out.println("Doctor: " + rs.getString("doctor_name"));
+                System.out.println("Doctor: " + doctor_name);
                 System.out.println("Status: " + rs.getString("status"));
                 System.out.println("-------------------------");
             }

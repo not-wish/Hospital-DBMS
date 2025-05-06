@@ -1,12 +1,17 @@
 package com.hdbms.services;
 
-import java.sql.*;
-
-import io.github.cdimascio.dotenv.Dotenv;
-
-import java.util.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.InputMismatchException;
+import java.util.Scanner;
 
 import com.hdbms.DAO.UserDAOImpl;
+
+import io.github.cdimascio.dotenv.Dotenv;
 
 public class ReceptionistDashboard {
 
@@ -14,12 +19,11 @@ public class ReceptionistDashboard {
     private final String user = "root";
     private final String password;
 
-    public ReceptionistDashboard() {
+    public ReceptionistDashboard(Scanner scanner) {
         Dotenv dotenv = Dotenv.load();
         this.url = dotenv.get("DB_URL");
         this.password = dotenv.get("DB_PASSWORD");
 
-        Scanner scanner = new Scanner(System.in);
         int choice = -1;
 
         do {
@@ -38,8 +42,8 @@ public class ReceptionistDashboard {
             System.out.print("Enter your choice: ");
 
             try {
-                choice = scanner.nextInt();
-                scanner.nextLine(); // Clear the newline character
+                choice = Integer.parseInt(scanner.nextLine());
+                // scanner.nextLine(); // Clear the newline character
 
                 switch (choice) {
                     case 1:
@@ -72,8 +76,6 @@ public class ReceptionistDashboard {
                 choice = -1; // Reset to keep the loop running
             }
         } while (choice != 0);
-
-        scanner.close();
 
     }
 
@@ -123,6 +125,13 @@ public class ReceptionistDashboard {
             return;
         }
 
+        System.out.println(hash_id);
+        System.out.println(patient_hash_id);
+        System.out.println(doctor_hash_id);
+        System.out.println(datetimeInput);
+        System.out.println(status);
+        System.out.println(additionalInfo);
+
         String query = "INSERT INTO appointment (hash_id, patient_hash_id, doctor_hash_id, appointment_date, status, additional_info) "
                 + "VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -160,8 +169,8 @@ public class ReceptionistDashboard {
         String query = "SELECT a.hash_id, u1.username AS patient_username, u2.username AS doctor_username, "
                 + "a.appointment_date, a.status, a.additional_info "
                 + "FROM appointment a "
-                + "JOIN user u1 ON a.patient_hash_id = u1.hash_id "
-                + "JOIN user u2 ON a.doctor_hash_id = u2.hash_id";
+                + "JOIN users u1 ON a.patient_hash_id = u1.hash_id "
+                + "JOIN users u2 ON a.doctor_hash_id = u2.hash_id";
 
         try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
 
@@ -178,8 +187,10 @@ public class ReceptionistDashboard {
                 String status = rs.getString("status");
                 String additionalInfo = rs.getString("additional_info");
 
-                System.out.printf("%-15s %-20s %-20s %-20s %-15s %-30s%n",
-                        appointmentId, patientUsername, doctorUsername,
+                System.out.printf("Appointment ID: %s\n", appointmentId);
+                System.out.println("===========================================================================================");
+                System.out.printf("%-20s %-20s %-20s %-15s %-30s%n",
+                        patientUsername, doctorUsername,
                         appointmentDate, status, additionalInfo != null ? additionalInfo : "N/A");
             }
 
@@ -223,45 +234,45 @@ public class ReceptionistDashboard {
         System.out.println("== Update Patient Information feature is coming soon. Stay tuned. ==");
     }
 
-    private void viewAppointments() {
-        System.out.println("=================================================");
-        System.out.println("Viewing all upcoming appointments...");
+    // private void viewAppointments() {
+    //     System.out.println("=================================================");
+    //     System.out.println("Viewing all upcoming appointments...");
 
-        String query = "SELECT a.hash_id, a.appointment_date, a.status, a.additional_info, "
-                + "p.username AS patient_username, d.username AS doctor_username "
-                + "FROM appointment a "
-                + "JOIN user p ON a.patient_hash_id = p.hash_id "
-                + "JOIN user d ON a.doctor_hash_id = d.hash_id "
-                + "ORDER BY a.appointment_date ASC";
+    //     String query = "SELECT a.hash_id, a.appointment_date, a.status, a.additional_info, "
+    //             + "p.username AS patient_username, d.username AS doctor_username "
+    //             + "FROM appointment a "
+    //             + "JOIN users p ON a.patient_hash_id = p.hash_id "
+    //             + "JOIN users d ON a.doctor_hash_id = d.hash_id "
+    //             + "ORDER BY a.appointment_date ASC";
 
-        try (Connection conn = DriverManager.getConnection(url, user, password); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+    //     try (Connection conn = DriverManager.getConnection(url, user, password); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
 
-            System.out.printf("%-15s %-20s %-15s %-15s %-15s %-30s%n",
-                    "Appointment ID", "Date", "Patient", "Doctor", "Status", "Additional Info");
-            System.out.println("------------------------------------------------------------------------------------------");
+    //         System.out.printf("%-15s %-20s %-15s %-15s %-15s %-30s%n",
+    //                 "Appointment ID", "Date", "Patient", "Doctor", "Status", "Additional Info");
+    //         System.out.println("------------------------------------------------------------------------------------------");
 
-            boolean hasResults = false;
-            while (rs.next()) {
-                hasResults = true;
-                String id = rs.getString("hash_id");
-                String date = rs.getString("appointment_date");
-                String patient = rs.getString("patient_username");
-                String doctor = rs.getString("doctor_username");
-                String status = rs.getString("status");
-                String info = rs.getString("additional_info");
+    //         boolean hasResults = false;
+    //         while (rs.next()) {
+    //             hasResults = true;
+    //             String id = rs.getString("hash_id");
+    //             String date = rs.getString("appointment_date");
+    //             String patient = rs.getString("patient_username");
+    //             String doctor = rs.getString("doctor_username");
+    //             String status = rs.getString("status");
+    //             String info = rs.getString("additional_info");
 
-                System.out.printf("%-15s %-20s %-15s %-15s %-15s %-30s%n",
-                        id, date, patient, doctor, status, info != null ? info : "-");
-            }
+    //             System.out.printf("%-15s %-20s %-15s %-15s %-15s %-30s%n",
+    //                     id, date, patient, doctor, status, info != null ? info : "-");
+    //         }
 
-            if (!hasResults) {
-                System.out.println("No appointments found.");
-            }
+    //         if (!hasResults) {
+    //             System.out.println("No appointments found.");
+    //         }
 
-        } catch (SQLException e) {
-            System.err.println("SQL error: " + e.getMessage());
-        }
-    }
+    //     } catch (SQLException e) {
+    //         System.err.println("SQL error: " + e.getMessage());
+    //     }
+    // }
 
     private void viewPatientInfo(Scanner scanner) {
         Dotenv dotenv = Dotenv.load();

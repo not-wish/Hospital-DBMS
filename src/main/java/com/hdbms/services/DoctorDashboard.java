@@ -1,8 +1,12 @@
 package com.hdbms.services;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Scanner;
-import java.util.UUID;
+
 import io.github.cdimascio.dotenv.Dotenv;
 
 public class DoctorDashboard {
@@ -10,13 +14,12 @@ public class DoctorDashboard {
     private final String user = "root";
     private final String password;
     private final String doctorHashId;
-    public DoctorDashboard(String doctorHashId) {
+    public DoctorDashboard(String doctorHashId, Scanner scanner) {
         this.doctorHashId = doctorHashId;
         Dotenv dotenv = Dotenv.load();
         this.url = dotenv.get("DB_URL");
         this.password = dotenv.get("DB_PASSWORD");
 
-        Scanner scanner = new Scanner(System.in);
 
         System.out.println("\nWelcome to Your Doctor Dashboard!");
         System.out.println("Your Unique Hash ID: " + doctorHashId);
@@ -46,7 +49,6 @@ public class DoctorDashboard {
                     break;
                 case 3:
                     System.out.println("Exiting dashboard. Goodbye!");
-                    scanner.close();
                     return;
                 default:
                     System.out.println("Invalid choice. Please try again.");
@@ -56,7 +58,7 @@ public class DoctorDashboard {
 
     // View scheduled appointments based on Hash ID
     public void viewAppointments() {
-        String query = "SELECT patient_name, appointment_date, patient_hash_id FROM appointments WHERE doctor_hash_id = ?";
+        String query = "SELECT patient_name, appointment_date, patient_hash_id FROM appointment WHERE doctor_hash_id = ?";
         try (Connection conn = DriverManager.getConnection(url, user, password);
              PreparedStatement stmt = conn.prepareStatement(query)) {
 

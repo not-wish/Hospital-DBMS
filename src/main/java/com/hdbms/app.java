@@ -1,24 +1,23 @@
 package com.hdbms;
 
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Scanner;
-import java.security.NoSuchAlgorithmException;
 
 import com.hdbms.DAO.UserDAOImpl;
-import com.hdbms.DAO.userDAO;
 import com.hdbms.models.Doctor;
 import com.hdbms.models.Patient;
 import com.hdbms.models.User;
-import com.hdbms.services.HospitalDatabaseSetup;
-import com.hdbms.services.PatientDoctorService;
-import com.hdbms.services.PatientDashboard;
-import com.hdbms.services.ReceptionistDashboard;
 import com.hdbms.services.DoctorDashboard;
 import com.hdbms.services.HashUtil;
+import com.hdbms.services.HospitalDatabaseSetup;
+import com.hdbms.services.PatientDashboard;
+import com.hdbms.services.PatientDoctorService;
+import com.hdbms.services.ReceptionistDashboard;
 
 // class HashUtil {
 //     public static String generateKey(String user) throws NoSuchAlgorithmException {
@@ -214,22 +213,27 @@ public class app {
             System.out.print("Enter your choice: ");
 
             try {
-                choice = scanner.nextInt();
-                scanner.nextLine(); // Clear the newline character
+                    choice = scanner.nextInt();
+                    scanner.nextLine(); // Clear the newline character
+                
+                    switch (choice) {
+                        case 1:
+                            login(scanner);
+                            break;
+                        case 2:
+                            register(scanner);
+                            break;
+                        case 3:
+                            System.out.println("Thank you for using the Hospital DBMS!");
+                            break;
+                        default:
+                            System.out.println("Invalid choice. Please try again.");
+                    }
 
-                switch (choice) {
-                    case 1:
-                        login(scanner);
-                        break;
-                    case 2:
-                        register(scanner);
-                        break;
-                    case 3:
-                        System.out.println("Thank you for using the Hospital DBMS!");
-                        break;
-                    default:
-                        System.out.println("Invalid choice. Please try again.");
-                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number (1, 2, or 3).");
+                scanner.nextLine(); // Clear the invalid input
+                choice = -1; // Reset to keep the loop running
             } catch (InputMismatchException e) {
                 System.out.println("Invalid input. Please enter a valid number (1, 2, or 3).");
                 scanner.nextLine(); // Clear the invalid input
@@ -257,15 +261,19 @@ public class app {
             String role = userDAOImpl.getUserRole(username);
             if (role.equalsIgnoreCase("patient")) {
                 // System.out.println("You are logged in as a Patient.");
-                PatientDashboard patientDashboard = new PatientDashboard(userDAOImpl.getUserId(username));
+                PatientDashboard patientDashboard = new PatientDashboard(userDAOImpl.getUserId(username), scanner);
+                // scanner.nextLine(); // Consume the newline character
+                
             } else if (role.equalsIgnoreCase("doctor")) {
                 // System.out.println("You are logged in as a Doctor.");
                 // Call the doctor dashboard or service
-                DoctorDashboard doctorDashboard = new DoctorDashboard(userDAOImpl.getUserId(username));
+                DoctorDashboard doctorDashboard = new DoctorDashboard(userDAOImpl.getUserId(username), scanner);
+                // scanner.nextLine(); // Consume the newline character
             } else if (role.equalsIgnoreCase("receptionist")) {
                 // System.out.println("You are logged in as a Receptionist.");
                 // Call the receptionist dashboard or service
-                ReceptionistDashboard receptionistDashboard = new ReceptionistDashboard();
+                ReceptionistDashboard receptionistDashboard = new ReceptionistDashboard(scanner);
+                // scanner.nextLine(); // Consume the newline character
             } else {
                 System.out.println("Unknown role. Please contact support.");
             }
@@ -371,6 +379,9 @@ public class app {
             // You can implement similar logic for doctors as you did for patients
 
             userDatabase.put(username, doctor);
+            PatientDoctorService patientDoctorService = new PatientDoctorService();
+
+            isRegistered = patientDoctorService.addDoctor(doctor.getHashID(), doctor.getName(), doctor.getSurname(), doctor.getGender(), doctor.getDepartment(), doctor.getIdNumber());
         } else if (role.equalsIgnoreCase("R")) {
             // Create a new Receptionist object and set its properties
             // Receptionist receptionist = new Receptionist();
@@ -381,13 +392,20 @@ public class app {
             // receptionist.set
             try {
                 userDAOImpl.saveUser(HashUtil.generateKey(username), username, password, "receptionist");
+                isRegistered = true;
             } catch (NoSuchAlgorithmException e) {
                 System.out.println("Error generating key for receptionist: " + e.getMessage());
                 return;
             }
+
+
             }
 
-        System.out.println("You are registered successfully!");
+        if (isRegistered == true) {
+            System.out.println("You are registered successfully!");
+        } else {
+            System.out.println("Error occurred registering the user");
+        }
         System.out.print("Do you want to proceed for login? (Yes/No): ");
         String proceedForLogin = scanner.nextLine();
         if (proceedForLogin.equalsIgnoreCase("Yes")) {

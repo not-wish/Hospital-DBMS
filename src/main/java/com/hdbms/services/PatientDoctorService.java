@@ -1,6 +1,11 @@
 package com.hdbms.services;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 import io.github.cdimascio.dotenv.Dotenv;
 
 public class PatientDoctorService {
@@ -60,16 +65,16 @@ public class PatientDoctorService {
         }
     }
 
-    public boolean addDoctor(String hashId, String name, String surname, String gender, int age, String dob) {
-        String query = "INSERT INTO doctor (hash_id, name, surname, gender, age, date_of_birth) VALUES (?, ?, ?, ?, ?, ?)";
+    public boolean addDoctor(String hashId, String name, String surname, String gender, String department, String id_number) {
+        String query = "INSERT INTO doctor (hash_id, name, surname, gender, department, id_number) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(url, user, password);
                 PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, hashId);
             stmt.setString(2, name);
             stmt.setString(3, surname);
             stmt.setString(4, gender);
-            stmt.setInt(5, age);
-            stmt.setDate(6, Date.valueOf(dob));
+            stmt.setString(5, department);
+            stmt.setString(6, id_number);
             // stmt.setString(7, doctorHashId); // Uncomment if you want to set
             // doctor_hash_id
             return stmt.executeUpdate() > 0;
