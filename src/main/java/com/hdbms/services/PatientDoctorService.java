@@ -21,8 +21,8 @@ public class PatientDoctorService {
     }
 
     public boolean addPatient(String hashId, String name, String surname, String gender, int age,
-            String dob) {
-        String query = "INSERT INTO patient (hash_id, name, surname, gender, age, date_of_birth) VALUES (?, ?, ?, ?, ?, ?)";
+            String dob, String bloodGroup) {
+        String query = "INSERT INTO patient (hash_id, name, surname, gender, age, date_of_birth, blood_group) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(url, user, password);
                 PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, hashId);
@@ -31,6 +31,7 @@ public class PatientDoctorService {
             stmt.setString(4, gender);
             stmt.setInt(5, age);
             stmt.setDate(6, Date.valueOf(dob));
+            stmt.setString(7, bloodGroup);
             // stmt.setString(7, doctorHashId); // Uncomment if you want to set
             // doctor_hash_id
             return stmt.executeUpdate() > 0;

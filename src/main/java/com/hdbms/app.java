@@ -350,7 +350,7 @@ public class app {
 
             PatientDoctorService patientDoctorService = new PatientDoctorService();
 
-            isRegistered = patientDoctorService.addPatient(patient.getHashID(), patient.getName(), patient.getSurname(), patient.getGender(), patient.getAge(), patient.getDateOfBirth());   
+            isRegistered = patientDoctorService.addPatient(patient.getHashID(), patient.getName(), patient.getSurname(), patient.getGender(), patient.getAge(), patient.getDateOfBirth(), patient.getBloodGroup());   
             // System.out.print("Enter past surgeries (if any): ");
             // patient.setPastSurgeries(scanner.nextLine());
             // System.out.print("Enter referred by: ");

@@ -174,9 +174,9 @@ public class HospitalDatabaseSetup {
                                     "bill_date DATE NOT NULL, " +
                                     "status ENUM('Pending', 'Paid') NOT NULL, " +
                                     "additional_info TEXT, " +
-                                    "FOREIGN KEY (patient_hash_id) REFERENCES patient(hash_id) ON DELETE CASCADE," +
-                                    "FOREIGN KEY (appointment_hash_id) REFERENCES appointment(hash_id) ON DELETE CASCADE"
-                                    +
+                                    "FOREIGN KEY (patient_hash_id) REFERENCES patient(hash_id) ON DELETE CASCADE" +
+                                    // "FOREIGN KEY (appointment_hash_id) REFERENCES appointment(hash_id) ON DELETE CASCADE"
+                                    // +
                                     ")");
                     // System.out.println("Table 'bill' created or already exists.");
                 } catch (SQLException e) {

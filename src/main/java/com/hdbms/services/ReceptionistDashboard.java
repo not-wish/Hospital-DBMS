@@ -140,8 +140,12 @@ public class ReceptionistDashboard {
 
         try {
             billHashId = HashUtil.generateKey(hash_id);
+            System.out.println("Enter billing amount: ");
             amount = scanner.nextDouble();
+            scanner.nextLine(); // Consume the newline character
+            System.out.println("Additional info: ");
             additional_info = scanner.nextLine();
+            System.out.println("Enter billing status (Paid, Pending): ");
             bill_status = scanner.nextLine();
         } catch (NoSuchAlgorithmException e) {
             System.out.println(e);
@@ -150,7 +154,7 @@ public class ReceptionistDashboard {
         generateBill(billHashId, hash_id, patient_hash_id, datetimeInput, amount, bill_status, additional_info);
 
         // Execute only if paid
-        if (checkBillingStatus(hash_id)) {
+        if (checkBillingStatus(billHashId)) {
             String query = "INSERT INTO appointment (hash_id, patient_hash_id, doctor_hash_id, appointment_date, status, additional_info) "
                     + "VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -186,30 +190,33 @@ public class ReceptionistDashboard {
 
     public boolean checkBillingStatus(String billHashId) {
         String query = "SELECT status FROM bill WHERE hash_id = ?";
+        
         try (Connection conn = DriverManager.getConnection(url, user, password);
-                PreparedStatement stmt = conn.prepareStatement(query)) {
+            PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, billHashId);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                boolean isPaid = false;
-                if (rs.getString("status").equals("Paid")) {
-                    isPaid = true;
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String status = rs.getString("status");
+                    return "Paid".equalsIgnoreCase(status);  // Also handles NULL safely
+                } else {
+                    System.out.println("Bill not found with ID: " + billHashId);
+                    return false;
                 }
-                return isPaid;
             }
         } catch (SQLException e) {
+            System.err.println("Error checking billing status for ID " + billHashId);
             e.printStackTrace();
+            return false;
         }
-        return false; // Default: Not paid
     }
 
     public boolean generateBill(String billHashId, String appointment_hash_id, String patient_hash_id, String bill_date,
             Double amount, String status, String additional_info) {
         String query = "INSERT INTO bill (hash_id, patient_hash_id, appointment_hash_id,amount ,bill_date , status, additional_info) VALUES (?, ?, ?, ?, ?, ?,?)";
         try (Connection conn = DriverManager.getConnection(url, user, password);
-                PreparedStatement stmt = conn.prepareStatement(query)) {
+            PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, billHashId);
             stmt.setString(2, patient_hash_id);
             stmt.setString(3, appointment_hash_id);
@@ -224,6 +231,7 @@ public class ReceptionistDashboard {
             e.printStackTrace();
             return false;
         }
+
     }
 
     private void viewAppointments(Scanner scanner) {
