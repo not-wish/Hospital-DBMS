@@ -1,5 +1,6 @@
 package com.hdbms.services;
 
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -132,30 +133,96 @@ public class ReceptionistDashboard {
         System.out.println(status);
         System.out.println(additionalInfo);
 
-        // create billing method and if bill status = paid then the rest of the lines run
+        String billHashId = null;
+        Double amount = null;
+        String additional_info = null;
+        String bill_status = null;
 
-        String query = "INSERT INTO appointment (hash_id, patient_hash_id, doctor_hash_id, appointment_date, status, additional_info) "
-                + "VALUES (?, ?, ?, ?, ?, ?)";
+        try {
+            billHashId = HashUtil.generateKey(hash_id);
+            amount = scanner.nextDouble();
+            additional_info = scanner.nextLine();
+            bill_status = scanner.nextLine();
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println(e);
+        }
 
-        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword); PreparedStatement stmt = conn.prepareStatement(query)) {
+        generateBill(billHashId, hash_id, patient_hash_id, datetimeInput, amount, bill_status, additional_info);
 
-            stmt.setString(1, hash_id);
-            stmt.setString(2, patient_hash_id);
-            stmt.setString(3, doctor_hash_id);
-            stmt.setString(4, datetimeInput); // assumes user enters valid format
-            stmt.setString(5, status);
-            stmt.setString(6, additionalInfo.isEmpty() ? null : additionalInfo);
+        // Execute only if paid
+        if (checkBillingStatus(hash_id)) {
+            String query = "INSERT INTO appointment (hash_id, patient_hash_id, doctor_hash_id, appointment_date, status, additional_info) "
+                    + "VALUES (?, ?, ?, ?, ?, ?)";
 
-            int rowsInserted = stmt.executeUpdate();
+            try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword);
+                    PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            if (rowsInserted > 0) {
-                System.out.println("Appointment scheduled successfully with ID: " + hash_id);
-            } else {
-                System.out.println("Failed to schedule appointment.");
+                stmt.setString(1, hash_id);
+                stmt.setString(2, patient_hash_id);
+                stmt.setString(3, doctor_hash_id);
+                stmt.setString(4, datetimeInput); // assumes user enters valid format
+                stmt.setString(5, status);
+                stmt.setString(6, additionalInfo.isEmpty() ? null : additionalInfo);
+
+                int rowsInserted = stmt.executeUpdate();
+
+                if (rowsInserted > 0) {
+                    System.out.println("Appointment scheduled successfully with ID: " + hash_id);
+                } else {
+                    System.out.println("Failed to schedule appointment.");
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
+            // Proceed with the rest of the code after the comment
+        } else {
+            System.out.println("Payment pending! Please complete billing first.");
+        }
+        // create billing method and if bill status = paid then the rest of the lines
+        // run
 
+    }
+
+    public boolean checkBillingStatus(String billHashId) {
+        String query = "SELECT status FROM bill WHERE hash_id = ?";
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+                PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, billHashId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                boolean isPaid = false;
+                if (rs.getString("status").equals("Paid")) {
+                    isPaid = true;
+                }
+                return isPaid;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        return false; // Default: Not paid
+    }
+
+    public boolean generateBill(String billHashId, String appointment_hash_id, String patient_hash_id, String bill_date,
+            Double amount, String status, String additional_info) {
+        String query = "INSERT INTO bill (hash_id, patient_hash_id, appointment_hash_id,amount ,bill_date , status, additional_info) VALUES (?, ?, ?, ?, ?, ?,?)";
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+                PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, billHashId);
+            stmt.setString(2, patient_hash_id);
+            stmt.setString(3, appointment_hash_id);
+            stmt.setDouble(4, amount);
+            stmt.setString(5, bill_date);
+            stmt.setString(6, status);
+            stmt.setString(7, additional_info);
+            // stmt.setString(7, doctorHashId); // Uncomment if you want to set
+            // doctor_hash_id
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 
@@ -174,12 +241,15 @@ public class ReceptionistDashboard {
                 + "JOIN users u1 ON a.patient_hash_id = u1.hash_id "
                 + "JOIN users u2 ON a.doctor_hash_id = u2.hash_id";
 
-        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword);
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(query)) {
 
             System.out.printf("%-15s %-20s %-20s %-20s %-15s %-30s%n",
                     "Appointment ID", "Patient Username", "Doctor Username",
                     "Appointment Date", "Status", "Additional Info");
-            System.out.println("===========================================================================================");
+            System.out.println(
+                    "===========================================================================================");
 
             while (rs.next()) {
                 String appointmentId = rs.getString("hash_id");
@@ -190,7 +260,8 @@ public class ReceptionistDashboard {
                 String additionalInfo = rs.getString("additional_info");
 
                 System.out.printf("Appointment ID: %s\n", appointmentId);
-                System.out.println("===========================================================================================");
+                System.out.println(
+                        "===========================================================================================");
                 System.out.printf("%-20s %-20s %-20s %-15s %-30s%n",
                         patientUsername, doctorUsername,
                         appointmentDate, status, additionalInfo != null ? additionalInfo : "N/A");
@@ -215,7 +286,8 @@ public class ReceptionistDashboard {
 
         String query = "UPDATE appointment SET status = Cancelled WHERE hash_id = ?";
 
-        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword); PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword);
+                PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, appointmentId);
 
@@ -231,43 +303,46 @@ public class ReceptionistDashboard {
     }
 
     // private void viewAppointments() {
-    //     System.out.println("=================================================");
-    //     System.out.println("Viewing all upcoming appointments...");
+    // System.out.println("=================================================");
+    // System.out.println("Viewing all upcoming appointments...");
 
-    //     String query = "SELECT a.hash_id, a.appointment_date, a.status, a.additional_info, "
-    //             + "p.username AS patient_username, d.username AS doctor_username "
-    //             + "FROM appointment a "
-    //             + "JOIN users p ON a.patient_hash_id = p.hash_id "
-    //             + "JOIN users d ON a.doctor_hash_id = d.hash_id "
-    //             + "ORDER BY a.appointment_date ASC";
+    // String query = "SELECT a.hash_id, a.appointment_date, a.status,
+    // a.additional_info, "
+    // + "p.username AS patient_username, d.username AS doctor_username "
+    // + "FROM appointment a "
+    // + "JOIN users p ON a.patient_hash_id = p.hash_id "
+    // + "JOIN users d ON a.doctor_hash_id = d.hash_id "
+    // + "ORDER BY a.appointment_date ASC";
 
-    //     try (Connection conn = DriverManager.getConnection(url, user, password); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+    // try (Connection conn = DriverManager.getConnection(url, user, password);
+    // PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs =
+    // stmt.executeQuery()) {
 
-    //         System.out.printf("%-15s %-20s %-15s %-15s %-15s %-30s%n",
-    //                 "Appointment ID", "Date", "Patient", "Doctor", "Status", "Additional Info");
-    //         System.out.println("------------------------------------------------------------------------------------------");
+    // System.out.printf("%-15s %-20s %-15s %-15s %-15s %-30s%n",
+    // "Appointment ID", "Date", "Patient", "Doctor", "Status", "Additional Info");
+    // System.out.println("------------------------------------------------------------------------------------------");
 
-    //         boolean hasResults = false;
-    //         while (rs.next()) {
-    //             hasResults = true;
-    //             String id = rs.getString("hash_id");
-    //             String date = rs.getString("appointment_date");
-    //             String patient = rs.getString("patient_username");
-    //             String doctor = rs.getString("doctor_username");
-    //             String status = rs.getString("status");
-    //             String info = rs.getString("additional_info");
+    // boolean hasResults = false;
+    // while (rs.next()) {
+    // hasResults = true;
+    // String id = rs.getString("hash_id");
+    // String date = rs.getString("appointment_date");
+    // String patient = rs.getString("patient_username");
+    // String doctor = rs.getString("doctor_username");
+    // String status = rs.getString("status");
+    // String info = rs.getString("additional_info");
 
-    //             System.out.printf("%-15s %-20s %-15s %-15s %-15s %-30s%n",
-    //                     id, date, patient, doctor, status, info != null ? info : "-");
-    //         }
+    // System.out.printf("%-15s %-20s %-15s %-15s %-15s %-30s%n",
+    // id, date, patient, doctor, status, info != null ? info : "-");
+    // }
 
-    //         if (!hasResults) {
-    //             System.out.println("No appointments found.");
-    //         }
+    // if (!hasResults) {
+    // System.out.println("No appointments found.");
+    // }
 
-    //     } catch (SQLException e) {
-    //         System.err.println("SQL error: " + e.getMessage());
-    //     }
+    // } catch (SQLException e) {
+    // System.err.println("SQL error: " + e.getMessage());
+    // }
     // }
 
     private void viewPatientInfo(Scanner scanner) {
@@ -286,7 +361,8 @@ public class ReceptionistDashboard {
                 + "FROM users u JOIN patient p ON u.hash_id = p.hash_id "
                 + "WHERE u.username = ?";
 
-        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword); PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword);
+                PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, patientUsername);
 
@@ -339,7 +415,8 @@ public class ReceptionistDashboard {
                 + "JOIN doctor d ON u.hash_id = d.hash_id "
                 + "WHERE u.username = ?";
 
-        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword); PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPassword);
+                PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, doctorUsername);
 
