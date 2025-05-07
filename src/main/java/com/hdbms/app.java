@@ -248,8 +248,17 @@ public class app {
         System.out.print("Enter username: ");
         String username = scanner.nextLine();
         System.out.print("Enter password: ");
-        String password = scanner.nextLine();
-
+        String password = null;
+        try {
+            password = HashUtil.generateKey(scanner.nextLine());
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println("SHA-256 Algorithm not found");
+            System.out.println(e);
+        } catch (Exception e) {
+            System.out.println("Some error occured creating paassword or hashing password");
+            System.out.println(e);
+        }
+        System.out.println("=================================================");
         System.out.println("Processing login...");
         System.out.println("=================================================");
 
@@ -294,8 +303,16 @@ public class app {
         }
 
         System.out.print("Enter password: ");
-        String password = scanner.nextLine();
-
+        String password = null;
+        try {
+            password = HashUtil.generateKey(scanner.nextLine());
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println("SHA-256 Algorithm not found");
+            System.out.println(e);
+        } catch (Exception e) {
+            System.out.println("Some error occured creating paassword or hashing password");
+            System.out.println(e);
+        }
         System.out.print("Enter name: ");
         String name = scanner.nextLine();
         System.out.print("Enter surname: ");

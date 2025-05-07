@@ -1,7 +1,6 @@
 com\hdbms\models\Patient.class
 com\hdbms\services\DoctorDashboard.class
 com\hdbms\services\ReceptionistDashboard.class
-com\hdbms\services\MedicalDashboard.class
 com\hdbms\app.class
 com\hdbms\models\User.class
 com\hdbms\services\PatientDashboard.class
@@ -10,10 +9,6 @@ com\hdbms\models\Doctor.class
 com\hdbms\services\HashUtil.class
 com\hdbms\services\PatientDoctorService.class
 com\hdbms\DAO\UserDAOImpl.class
-com\hdbms\services\Billing.class
-com\hdbms\services\Patient.class
 com\hdbms\services\HospitalDatabaseSetup.class
 com\hdbms\DAO\patientDAOImpl.class
-com\hdbms\services\Reportable.class
 com\hdbms\DAO\userDAO.class
-com\hdbms\services\MedicalRecord.class
